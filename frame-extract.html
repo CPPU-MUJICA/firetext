@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Frame Extractor</title>
+<style>
+  body { background: #111; color: #fff; font-family: monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  video { max-width: 900px; width: 100%; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  button { padding: 6px 12px; cursor: pointer; background: #016d8d; color: #fff; border: none; border-radius: 3px; }
+  button:hover { background: #00b4d8; }
+  canvas { max-width: 900px; width: 100%; margin-top: 10px; border: 1px solid #333; }
+  #info { color: #0f0; font-size: 13px; margin: 6px 0; }
+</style>
+</head>
+<body>
+<h2>视频帧提取工具 - 分析 19~35 秒</h2>
+<video id="v" src="a.mp4" controls></video>
+<div id="info">当前时间: 0s</div>
+<div class="btns">
+  <button onclick="seek(19)">19s</button>
+  <button onclick="seek(20)">20s</button>
+  <button onclick="seek(21)">21s</button>
+  <button onclick="seek(22)">22s</button>
+  <button onclick="seek(23)">23s</button>
+  <button onclick="seek(24)">24s</button>
+  <button onclick="seek(25)">25s</button>
+  <button onclick="seek(26)">26s</button>
+  <button onclick="seek(27)">27s</button>
+  <button onclick="seek(28)">28s</button>
+  <button onclick="seek(29)">29s</button>
+  <button onclick="seek(30)">30s</button>
+  <button onclick="seek(31)">31s</button>
+  <button onclick="seek(32)">32s</button>
+  <button onclick="seek(33)">33s</button>
+  <button onclick="seek(34)">34s</button>
+  <button onclick="seek(35)">35s</button>
+  <button onclick="capture()" style="background:#a00;">📷 截图到Canvas</button>
+  <button onclick="saveImg()" style="background:#060;">💾 保存PNG</button>
+</div>
+<canvas id="c"></canvas>
+
+<script>
+  var v = document.getElementById('v');
+  var c = document.getElementById('c');
+  var ctx = c.getContext('2d');
+
+  v.addEventListener('timeupdate', function() {
+    document.getElementById('info').textContent = '当前时间: ' + v.currentTime.toFixed(2) + 's';
+  });
+
+  function seek(t) {
+    v.currentTime = t;
+    v.pause();
+    setTimeout(capture, 300);
+  }
+
+  function capture() {
+    c.width = v.videoWidth;
+    c.height = v.videoHeight;
+    ctx.drawImage(v, 0, 0);
+  }
+
+  function saveImg() {
+    var a = document.createElement('a');
+    a.download = 'frame_' + v.currentTime.toFixed(1) + 's.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
+  }
+</script>
+</body>
+</html>

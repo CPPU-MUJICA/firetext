@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Arknights</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<script>window._loadStart=Date.now();</script>
+<link rel="stylesheet" href="css/normalize.css?v=1.0">
+<link rel="stylesheet" href="css/styles.css?v=1.0">
+<style>
+/* ═══ Arknights Opening V3 – Pure CSS/JS ═══ */
+*,*::before,*::after{box-sizing:border-box}
+
+/* ─── Loader ─── */
+.loader-layer{position:fixed;inset:0;z-index:999;background:#000;overflow:hidden;font-family:'Noto Sans SC',sans-serif}
+.loader-layer.outro{animation:fadeO .8s ease forwards}
+@keyframes fadeO{to{opacity:0}}
+#sphere-cv{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+#intro-flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:100;pointer-events:none}
+
+/* ─── Phase base ─── */
+.ip{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;z-index:2;transition:opacity .5s}
+.ip.on{opacity:1;pointer-events:auto}
+
+/* ─── Phase 1: Disclaimer ─── */
+#p-disc{background:linear-gradient(135deg,#3a3a3a,#484848);transition:opacity .6s;padding:5vh 8vw}
+.disc-crystal{position:absolute;left:6%;bottom:8%;width:130px;height:150px;background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.09));clip-path:polygon(50% 0%,90% 25%,90% 75%,50% 100%,10% 75%,10% 25%);opacity:.6}
+.disc-logos{display:flex;align-items:center;gap:24px;margin-bottom:32px}
+.disc-logo{text-align:center}
+.disc-logo-icon{width:42px;height:42px;margin:0 auto 6px;border:1.5px solid rgba(255,255,255,.35);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.6)}
+.disc-logo-name{font-size:14px;font-weight:700;color:rgba(255,255,255,.85)}
+.disc-logo-sub{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.45);margin-top:2px}
+.disc-sep{width:1px;height:46px;background:rgba(255,255,255,.2)}
+.disc-text{font-size:12px;line-height:2;color:rgba(255,255,255,.65);max-width:620px;text-align:center;margin-top:6px}
+.disc-text.sm{font-size:11px;color:rgba(255,255,255,.38);margin-top:14px}
+
+/* ─── Phase 2: Title Card ─── */
+#p-tc{transition:opacity .5s;overflow:hidden}
+.tc-bg{position:absolute;inset:0;background:linear-gradient(to top,#3a4530 0%,#5a5a38 20%,#8a7a45 45%,#c09848 70%,#d8a850 85%,#e0b060 100%)}
+.tc-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 65%,rgba(80,110,55,.5),transparent 55%),radial-gradient(ellipse at 75% 25%,rgba(200,160,80,.35),transparent 45%)}
+.tc-bg::after{content:'';position:absolute;right:10%;top:5%;width:30%;height:60%;background:linear-gradient(160deg,rgba(180,200,210,.08),rgba(220,230,240,.12));clip-path:polygon(30% 0%,100% 15%,85% 100%,0% 80%);opacity:.6}
+.tc-title{position:relative;z-index:2;font-family:'Noto Serif SC',serif;font-size:clamp(38px,6.5vw,76px);font-weight:900;color:#fff;letter-spacing:.12em;text-shadow:0 2px 30px rgba(0,0,0,.25)}
+.tc-title::before,.tc-title::after{content:'—';font-weight:300;opacity:.45;margin:0 .15em}
+.tc-sub{position:relative;z-index:2;border:1px solid rgba(255,255,255,.35);padding:4px 22px;margin-top:12px;display:flex;align-items:center;gap:12px}
+.tc-sub-line{width:28px;height:1px;background:rgba(255,255,255,.45)}
+.tc-sub-text{font-size:clamp(11px,1.4vw,16px);color:rgba(255,255,255,.9);letter-spacing:6px}
+
+/* ─── Phase 3: Loading ─── */
+#p-load{background:linear-gradient(145deg,#1a1015,#2a1818,#1a0c0c);transition:opacity .5s;justify-content:flex-start;padding:5vh 6vw}
+.ld-top{width:100%;display:flex;justify-content:space-between;align-items:flex-start}
+.ld-btn{font-size:12px;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.18);padding:3px 10px;margin-right:8px}
+.ld-ver{font-size:10px;color:rgba(255,255,255,.3);margin-top:4px}
+.ld-top-r{display:flex;align-items:center;gap:8px}
+.ld-age{width:26px;height:26px;border:2px solid rgba(255,255,255,.4);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(255,255,255,.5)}
+.ld-icp{font-size:9px;color:rgba(255,255,255,.25)}
+.ld-mid{flex:1;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:480px;margin-left:8vw}
+.ld-h{font-family:'Noto Serif SC',serif;font-size:clamp(26px,3.8vw,44px);font-weight:900;color:#fff;margin-bottom:14px}
+.ld-p{font-size:12px;line-height:1.9;color:rgba(255,255,255,.55);max-width:400px}
+.ld-bot{width:100%;display:flex;justify-content:center;align-items:center;gap:10px}
+.ld-spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.12);border-top-color:rgba(255,255,255,.6);border-radius:50%;animation:spin .8s linear infinite}
+.ld-st{font-size:12px;color:rgba(255,255,255,.4)}
+.ld-pct{position:absolute;bottom:6vh;right:8vw;font-size:22px;font-weight:700;color:#a8c040}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── Phase 4: Login ─── */
+#p-login{background:radial-gradient(ellipse at 50% 28%,#f2f2f0 0%,#e5e5e3 25%,#d5d5d2 50%,#c8c8c5 100%);transition:opacity 1s;justify-content:flex-start}
+.lg-area{width:100%;height:30vh;min-height:120px;flex-shrink:0}
+.lg-mid{display:flex;flex-direction:column;align-items:center;z-index:10;position:relative;margin-top:-2vh}
+.lg-castle{color:rgba(255,255,255,.92);filter:drop-shadow(0 2px 8px rgba(0,0,0,.06));margin-bottom:2px}
+.lg-castle svg{width:clamp(55px,7vh,90px);height:auto}
+.lg-title{font-family:'Noto Serif SC',serif;font-size:clamp(32px,5.5vw,64px);font-weight:900;color:#1a1a1a;letter-spacing:.1em}
+.lg-title::before,.lg-title::after{content:'—';font-weight:300;color:rgba(0,0,0,.25);margin:0 .08em}
+.lg-sub{display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,.2);padding:3px 18px;margin-top:6px}
+.lg-sub-line{width:24px;height:1px;background:rgba(0,0,0,.25)}
+.lg-sub-text{font-size:clamp(10px,1.2vw,14px);color:#1a1a1a;letter-spacing:5px;font-style:italic}
+.lg-fadeable{transition:opacity .5s}.lg-fadeable.hid{opacity:0;pointer-events:none}
+.lg-btn{margin-top:clamp(18px,3vh,34px);padding:clamp(9px,1.3vh,14px) clamp(44px,7vw,76px);background:#6a6a6a;color:#fff;font-size:clamp(14px,1.7vh,19px);font-weight:500;border:none;cursor:pointer;letter-spacing:4px;transition:background .2s}
+.lg-btn:hover{background:#7a7a7a}
+.lg-player{margin-top:clamp(8px,1.4vh,14px);font-size:clamp(11px,1.3vh,14px);color:#999;display:flex;align-items:center;gap:8px}
+.lg-player .tag{background:rgba(0,0,0,.05);padding:1px 8px;border-radius:2px;font-size:.9em}
+.lg-bar{position:absolute;bottom:0;left:0;right:0;height:clamp(42px,5vh,56px);background:#3a3a3a;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(12px,2vw,22px);z-index:10}
+.lg-bar-l{display:flex;align-items:center;gap:8px;font-size:clamp(9px,1vh,12px);color:rgba(255,255,255,.45)}
+.lg-bar-l .sep{width:1px;height:18px;background:rgba(255,255,255,.15)}
+.lg-bar-l .copy{font-size:clamp(8px,.9vh,10px);color:rgba(255,255,255,.25)}
+.lg-bar-r{display:flex;align-items:center;gap:clamp(6px,.8vw,12px)}
+.lg-bar-btn{font-size:clamp(10px,1.1vh,13px);color:rgba(255,255,255,.65);background:rgba(255,255,255,.06);padding:clamp(4px,.6vh,7px) clamp(8px,1vw,14px);cursor:pointer;border:1px solid rgba(255,255,255,.08);transition:background .2s}
+.lg-bar-btn:hover{background:rgba(255,255,255,.12)}
+.lg-bar-id{font-size:clamp(9px,.95vh,11px);color:rgba(255,255,255,.35);text-align:right;line-height:1.5}
+
+/* ─── Phase 5: Neural ─── */
+#p-neural{background:radial-gradient(ellipse at 50% 42%,#1a1a1a,#080808);transition:opacity .3s}
+.n-status{position:absolute;bottom:clamp(16vh,20vh,24vh);font-size:clamp(11px,1.3vh,15px);color:rgba(255,255,255,.4);letter-spacing:2px;z-index:10}
+.n-bl{position:absolute;bottom:clamp(12px,2vh,22px);left:clamp(12px,2vw,22px);font-size:clamp(8px,.9vh,11px);color:rgba(255,255,255,.3);line-height:1.6;z-index:10}
+.n-br{position:absolute;bottom:clamp(12px,2vh,22px);right:clamp(12px,2vw,22px);font-size:clamp(9px,1vh,12px);color:rgba(255,255,255,.35);text-align:right;line-height:1.6;z-index:10}
+.n-dots{position:absolute;inset:0;z-index:1;overflow:hidden}
+.n-dot{position:absolute;width:2px;height:2px;background:rgba(255,255,255,.3);border-radius:50%;animation:nF 10s linear infinite}
+@keyframes nF{0%{transform:translate(0,0);opacity:0}8%{opacity:.5}90%{opacity:.15}100%{transform:translate(-70px,-45px);opacity:0}}
+
+/* ─── Phase 6: RI Intro ─── */
+#p-ri{transition:opacity .12s;overflow:hidden}
+.ri-bg{position:absolute;inset:-20px;background:linear-gradient(145deg,#5a5044 0%,#6a6055 15%,#7a7065 30%,#8a806a 45%,#6a6050 60%,#5a5040 80%,#4a4035 100%);filter:blur(8px);animation:riBright 4s ease forwards}
+.ri-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 55% 45%,rgba(160,150,130,.25),transparent 60%),radial-gradient(ellipse at 30% 60%,rgba(100,90,70,.2),transparent 50%)}
+.ri-bg::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.2)}
+@keyframes riBright{0%{filter:blur(8px) brightness(.7)}100%{filter:blur(8px) brightness(1.15)}}
+.ri-center{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;margin-top:-4vh}
+.ri-tri{position:relative;width:clamp(160px,18vw,260px);overflow:visible}
+.ri-tri svg{width:100%;height:auto}
+.ri-label{font-size:clamp(12px,1.5vw,20px);font-weight:500;color:#fff;letter-spacing:clamp(6px,1.2vw,14px);margin-top:14px;text-shadow:0 1px 6px rgba(0,0,0,.3)}
+.ri-scan{position:absolute;top:44%;left:6%;right:6%;height:1px;background:rgba(255,255,255,.18);z-index:4;display:flex;align-items:center;justify-content:space-between;padding:0 5%}
+.ri-mk{width:5px;height:5px;background:rgba(255,255,255,.6);flex-shrink:0}
+.ri-mk.y{background:#e8c43a}
+.ri-cross{position:absolute;right:12%;top:35%;width:60px;height:60px;z-index:4}
+.ri-cross::before,.ri-cross::after{content:'';position:absolute;background:rgba(255,255,255,.12)}
+.ri-cross::before{width:100%;height:1px;top:50%}
+.ri-cross::after{width:1px;height:100%;left:50%}
+.ri-desc{position:absolute;bottom:11vh;z-index:4;font-size:clamp(12px,1.3vw,16px);color:rgba(255,255,255,.8);letter-spacing:1px;line-height:1.8;max-width:78%;text-align:center}
+.ri-sweep{position:absolute;top:0;left:-6px;width:6px;height:100%;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.05),transparent);animation:riSw 3.5s ease-in-out infinite;z-index:5}
+@keyframes riSw{0%{left:-6px}100%{left:100%}}
+
+/* ─── Account Modal ─── */
+.acct-ov{position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+.acct-ov.show{display:flex}
+.acct-box{background:#1c1c20;border:1px solid rgba(255,255,255,.07);width:min(400px,88vw);color:#fff}
+.acct-hd{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
+.acct-hd h3{font-size:15px;font-weight:500;letter-spacing:2px;margin:0}
+.acct-x{width:26px;height:26px;background:none;border:1px solid rgba(255,255,255,.12);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.acct-x:hover{background:rgba(255,255,255,.06)}
+.acct-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06)}
+.acct-tab{flex:1;padding:9px;text-align:center;font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.acct-tab.act{color:#fff;border-bottom-color:#00b4d8}
+.acct-bd{padding:18px}
+.acct-f{margin-bottom:12px}
+.acct-f label{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:3px;letter-spacing:1px}
+.acct-f input{width:100%;padding:9px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;font-size:13px;outline:none}
+.acct-f input:focus{border-color:rgba(0,180,216,.4)}
+.acct-go{width:100%;padding:11px;background:#00b4d8;color:#fff;border:none;font-size:13px;cursor:pointer;letter-spacing:2px;margin-top:6px}
+.acct-go:hover{background:#0096b4}
+.acct-li{list-style:none;padding:0;margin:0}
+.acct-it{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid rgba(255,255,255,.05);margin-bottom:6px;cursor:pointer;transition:background .2s}
+.acct-it:hover{background:rgba(255,255,255,.03)}
+.acct-it.cur{border-color:rgba(0,180,216,.25);background:rgba(0,180,216,.04)}
+.acct-it-n{font-size:13px}.acct-it-id{font-size:10px;color:rgba(255,255,255,.35)}
+.acct-badge{font-size:9px;color:#00b4d8;border:1px solid rgba(0,180,216,.25);padding:2px 5px}
+.acct-empty{font-size:11px;color:rgba(255,255,255,.25);text-align:center;padding:18px 0}
+
+/* ─── Main UI entrance ─── */
+.main-hide header,.main-hide .view-box{opacity:0}
+.main-show header{animation:uiIn .8s .1s ease both}
+.main-show .view-box{animation:uiIn .8s .3s ease both}
+@keyframes uiIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+
+<body class="main-hide">
+<div class="loader-layer" id="loader-layer">
+<canvas id="sphere-cv"></canvas>
+<div id="intro-flash"></div>
+
+<!-- Phase 1: Disclaimer -->
+<div class="ip" id="p-disc">
+	<div class="disc-crystal"></div>
+	<div class="disc-logos">
+		<div class="disc-logo"><div class="disc-logo-icon">鹰</div><div class="disc-logo-name">鹰角网络</div><div class="disc-logo-sub">HYPERGRYPH</div></div>
+		<div class="disc-sep"></div>
+		<div class="disc-logo"><div class="disc-logo-icon">▲</div><div class="disc-logo-name">STUDIO MONTAGNE</div></div>
+	</div>
+	<p class="disc-text">本游戏的时间、地点、人物、事件、故事及其他内容均为虚构，与真实人物或时间无关。如有雷同，纯属巧合。</p>
+	<p class="disc-text sm">有极少数的人在观看一些视觉影像时可能会突然癫痫发作，这些影响包括电玩游戏中出现的闪光或图形。即使过去没有癫痫或癫痫发作病史的人也可能存在尚未被诊断的潜在隐患。</p>
+</div>
+
+<!-- Phase 2: Title Card -->
+<div class="ip" id="p-tc">
+	<div class="tc-bg"></div>
+	<div class="tc-title">明日方舟</div>
+	<div class="tc-sub"><span class="tc-sub-line"></span><span class="tc-sub-text">ARKNIGHTS</span><span class="tc-sub-line"></span></div>
+</div>
+
+<!-- Phase 3: Loading -->
+<div class="ip" id="p-load">
+	<div class="ld-top">
+		<div><span class="ld-btn">清除缓存</span><span class="ld-btn">网络检测</span><div class="ld-ver">Ver:2.7.11</div></div>
+		<div class="ld-top-r"><span class="ld-icp">沪ICP备17022476号-8A</span><div class="ld-age">12+</div></div>
+	</div>
+	<div class="ld-mid"><div class="ld-h">矿石病</div><p class="ld-p">目前发现长期接触源石及其工业衍生品，会使人更容易得一种被称为"矿石病"的不治之症。矿石病会以一种危险的形式增强人的法术使用能力，但是却会在患者使用法术的过程中不断扩大感染范围最终夺走感染者的生命。</p></div>
+	<div class="ld-bot"><div class="ld-spin"></div><span class="ld-st">正在检查资源完整性，不消耗流量…</span></div>
+	<div class="ld-pct" id="ld-pct">0%</div>
+</div>
+
+<!-- Phase 4: Login -->
+<div class="ip" id="p-login">
+	<div class="lg-area"></div>
+	<div class="lg-mid">
+		<div class="lg-castle"><svg viewBox="0 0 100 90" fill="currentColor"><rect x="35" y="4" width="30" height="62"/><rect x="33" y="0" width="5" height="8"/><rect x="41" y="0" width="5" height="8"/><rect x="48" y="0" width="5" height="8"/><rect x="55" y="0" width="5" height="8"/><rect x="62" y="0" width="5" height="8"/><rect x="8" y="22" width="20" height="44"/><rect x="6" y="18" width="5" height="8"/><rect x="14" y="18" width="5" height="8"/><rect x="22" y="18" width="5" height="8"/><rect x="72" y="22" width="20" height="44"/><rect x="73" y="18" width="5" height="8"/><rect x="81" y="18" width="5" height="8"/><rect x="89" y="18" width="5" height="8"/><rect x="28" y="36" width="7" height="30"/><rect x="65" y="36" width="7" height="30"/><rect x="0" y="64" width="100" height="5"/><path d="M43 66 Q50 54 57 66 Z" fill="rgba(0,0,0,.15)"/><text x="50" y="82" font-size="7" text-anchor="middle" letter-spacing="3" fill="currentColor" style="font-family:'Noto Sans SC',sans-serif;font-weight:500;opacity:.5">RHODES ISLAND</text></svg></div>
+		<div class="lg-title">明日方舟</div>
+		<div class="lg-sub"><span class="lg-sub-line"></span><span class="lg-sub-text">ARKNIGHTS</span><span class="lg-sub-line"></span></div>
+		<div class="lg-fadeable" id="lg-fade">
+			<button class="lg-btn" id="btn-awaken">开始唤醒</button>
+			<div class="lg-player"><span class="tag">玩家</span><span id="acct-disp">198****8849</span></div>
+		</div>
+	</div>
+	<div class="lg-bar lg-fadeable" id="lg-bar-fade">
+		<div class="lg-bar-l"><span>鹰角网络</span><div class="sep"></div><span>STUDIO MONTAGNE</span><div class="sep"></div><span>© HYPERGRYPH. All rights reserved.</span></div>
+		<div class="lg-bar-r">
+			<span class="lg-bar-btn" id="btn-qr">扫码登录</span>
+			<span class="lg-bar-btn" id="btn-acct">账号管理</span>
+			<span class="lg-bar-btn" id="btn-notice">查看公告</span>
+			<div class="lg-bar-id">ID:<span id="acct-id">499810528</span><br>Ver:2.7.11</div>
+		</div>
+	</div>
+	<div class="acct-ov" id="acct-ov">
+		<div class="acct-box">
+			<div class="acct-hd"><h3>账号管理</h3><button class="acct-x" id="acct-x">✕</button></div>
+			<div class="acct-tabs"><div class="acct-tab act" data-t="login">登录</div><div class="acct-tab" data-t="reg">注册</div><div class="acct-tab" data-t="sw">切换账号</div></div>
+			<div class="acct-bd">
+				<div id="tab-login"><div class="acct-f"><label>手机号 / 邮箱</label><input id="inp-phone" placeholder="请输入手机号或邮箱"></div><div class="acct-f"><label>密码</label><input id="inp-pass" type="password" placeholder="请输入密码"></div><button class="acct-go" id="do-login">登 录</button></div>
+				<div id="tab-reg" style="display:none"><div class="acct-f"><label>手机号</label><input id="inp-rph" placeholder="请输入手机号"></div><div class="acct-f"><label>设置密码</label><input id="inp-rp1" type="password" placeholder="6-20位密码"></div><div class="acct-f"><label>确认密码</label><input id="inp-rp2" type="password" placeholder="再次输入密码"></div><button class="acct-go" id="do-reg">注 册</button></div>
+				<div id="tab-sw" style="display:none"><ul class="acct-li" id="acct-li"></ul><p class="acct-empty" id="acct-mt">暂无其他账号</p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Phase 5: Neural -->
+<div class="ip" id="p-neural">
+	<div class="n-dots" id="n-dots"></div>
+	<div class="n-status">正在尝试与Rhodes Island™取得神经连接</div>
+	<div class="n-bl">鹰角网络 | STUDIO MONTAGNE<br>© HYPERGRYPH. All rights reserved.</div>
+	<div class="n-br">ID:499810528<br>Ver:2.7.11</div>
+</div>
+
+<!-- Phase 6: RI Intro -->
+<div class="ip" id="p-ri">
+	<div class="ri-bg"></div>
+	<div class="ri-sweep"></div>
+	<div class="ri-center">
+		<div class="ri-tri"><svg viewBox="0 0 300 260"><polygon points="150,0 300,260 0,260" fill="#1a1a1a" stroke="rgba(255,255,255,.06)" stroke-width="1"/><g transform="translate(115,28) scale(1.15)" fill="rgba(255,255,255,.85)"><rect x="25" y="3" width="20" height="48"/><rect x="24" y="0" width="4" height="6"/><rect x="31" y="0" width="4" height="6"/><rect x="38" y="0" width="4" height="6"/><rect x="44" y="0" width="4" height="6"/><rect x="5" y="16" width="14" height="34"/><rect x="3" y="12" width="4" height="7"/><rect x="10" y="12" width="4" height="7"/><rect x="17" y="12" width="4" height="7"/><rect x="51" y="16" width="14" height="34"/><rect x="51" y="12" width="4" height="7"/><rect x="58" y="12" width="4" height="7"/><rect x="19" y="28" width="6" height="22"/><rect x="45" y="28" width="6" height="22"/><rect x="0" y="49" width="70" height="4"/></g><line x1="130" y1="95" x2="85" y2="225" stroke="rgba(255,255,255,.05)" stroke-width="1"/><line x1="170" y1="95" x2="215" y2="225" stroke="rgba(255,255,255,.05)" stroke-width="1"/><g transform="translate(141,200) scale(.45)"><circle cx="10" cy="4" r="4" fill="rgba(255,255,255,.5)"/><path d="M10,8 L10,24 M10,14 L2,22 M10,14 L18,20 M10,24 L3,36 M10,24 L17,34" stroke="rgba(255,255,255,.5)" stroke-width="2.5" fill="none" stroke-linecap="round"/></g><text x="150" y="253" font-size="11" text-anchor="middle" fill="rgba(255,255,255,.7)" letter-spacing="6" style="font-family:'Noto Sans SC',sans-serif;font-weight:500">RHODES ISLAND</text></svg></div>
+		<div class="ri-label">RHODES ISLAND</div>
+	</div>
+	<div class="ri-scan"><div class="ri-mk"></div><div class="ri-mk"></div><div class="ri-mk"></div><div class="ri-mk"></div><div class="ri-mk"></div><div class="ri-mk y"></div></div>
+	<div class="ri-cross"></div>
+	<div class="ri-desc">整合运动——一个由受到压迫的感染者组成，反抗非感染者及其政权的军事化民间组织。</div>
+</div>
+</div>
+
+<!-- Main UI (unchanged) -->
+<header><div class="level-box-container"><div class="level-box" id="level-box-adapter"><div class="level-logo"></div><div class="user-level"><div class="level-chart"><div class="chart-bg" id="chart-bg"></div><div class="chart-pr" id="chart-pr"></div><div class="level-num" id="level-num">64</div></div></div><div class="user-info"><div class="name">Mashiro</div><div class="id">ID: 37040126</div></div></div></div></header>
+<div id="view-box" class="view-box"><div id="mark" class="mark" data-pointer-events="true"><div id="bg-layer" class="layer" data-depth="0.0"><img id="bg-img" class="cover" src="img/UI_HOME_FRONT_BKG.png"></div><div id="char-arts-layer" class="layer" data-depth="0.01"><div class="char perspective box"><img src="img/char_010_chen_2b_merged.png"></div></div><div id="left-menu-layer" class="layer" data-depth="0.2"><div class="left menu box"><div class="container" id="left-mune-adapter"><div class="top"><div class="dialog"><span>博士？睡着了？哼，真没紧张感。</span></div></div><div class="bottom"><div class="left"><div class="activity-img"></div></div><div class="right"><div class="pos-1"><div class="friends"><div class="icon"></div><div class="text">好友</div></div></div><div class="pos-2"><div class="information"><div class="icon"></div><div class="text">情报</div></div></div></div></div></div></div></div><div id="right-menu-layer" class="layer" data-depth="0.2"><div class="right menu box"><div class="popup" id="right-mune-popup-adapter"></div><div class="container" id="right-mune-adapter"><div class="pos-1"><div class="top"><div class="line-left"></div><div class="battery"></div><div class="time" id="time">2019/06/05 22:33</div><div class="line-right"></div></div><div class="bottom"><div class="bg"></div><div class="status"><div class="item money"><div class="icon"></div><div class="amount">1000</div></div><div class="item jasper"><div class="icon"></div><div class="amount">1000</div><div class="more"></div></div><div class="item stone"><div class="icon"></div><div class="amount">1000</div><div class="more"></div></div></div></div></div><div class="pos-2"><div class="intellect"><div class="icon"></div><div class="content"><div class="figure"><div class="value">125</div><div class="total">/125</div></div><div class="battle"><div class="text">作战</div><div class="current">当前</div><div class="level">5-10 长夜终尽</div></div></div></div></div><div class="pos-3"><div class="team"><div class="icon"></div><div class="text">编队</div></div><div class="member"><div class="icon"></div><div class="text">干员</div><div class="desc">角色管理</div></div><div class="blank"></div></div><div class="pos-4"><div class="shop"><div class="icon"></div><div class="text">采购中心</div></div><div class="gamble"><div class="top"><div class="icon"></div><div class="text">招募</div></div><div class="bottom"><div class="left"><div class="icon"></div><div class="text">公开招募</div></div><div class="right"><div class="icon"></div><div class="text">干员寻访</div></div></div></div></div><div class="pos-5"><div class="task"><div class="icon"></div><div class="text">任务</div></div><div class="infrastructure"><div class="icon"></div><div class="text">基建</div><div class="beta"></div></div><div class="warehouse"><div class="icon"></div><div class="text">仓库</div></div></div></div></div></div><canvas id="canvas-dust"></canvas></div></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══ Geodesic Sphere (1-subdivision icosphere: 42 verts, 120 edges) ═══ */
+function Geo(sub){
+	var phi=(1+Math.sqrt(5))/2,V=[];
+	[[-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],[0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],[phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]].forEach(function(v){var l=Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);V.push([v[0]/l,v[1]/l,v[2]/l]);});
+	this.v=V;this.f=[[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+	for(var s=0;s<(sub||1);s++)this._s();this._e();
+}
+Geo.prototype._s=function(){var c={},v=this.v,nf=[];function m(a,b){var k=Math.min(a,b)+'_'+Math.max(a,b);if(c[k]!=null)return c[k];var A=v[a],B=v[b],M=[(A[0]+B[0])/2,(A[1]+B[1])/2,(A[2]+B[2])/2],l=Math.sqrt(M[0]*M[0]+M[1]*M[1]+M[2]*M[2]);M[0]/=l;M[1]/=l;M[2]/=l;v.push(M);return(c[k]=v.length-1);}for(var i=0;i<this.f.length;i++){var f=this.f[i],ab=m(f[0],f[1]),bc=m(f[1],f[2]),ca=m(f[2],f[0]);nf.push([f[0],ab,ca],[f[1],bc,ab],[f[2],ca,bc],[ab,bc,ca]);}this.f=nf;};
+Geo.prototype._e=function(){var s={},E=[];for(var i=0;i<this.f.length;i++){var f=this.f[i],p=[[f[0],f[1]],[f[1],f[2]],[f[2],f[0]]];for(var j=0;j<3;j++){var k=Math.min(p[j][0],p[j][1])+'_'+Math.max(p[j][0],p[j][1]);if(!s[k]){s[k]=1;E.push(p[j]);}}}this.edges=E;};
+
+/* Project all vertices, returns [{x,y,z,s}] */
+Geo.prototype.proj=function(cx,cy,rad,rY,rX){
+	var cY=Math.cos(rY),sY=Math.sin(rY),cX=Math.cos(rX),sX=Math.sin(rX),P=[],D=3.5;
+	for(var i=0;i<this.v.length;i++){var v=this.v[i],x1=v[0]*cY+v[2]*sY,y1=v[1],z1=-v[0]*sY+v[2]*cY,y2=y1*cX-z1*sX,z2=y1*sX+z1*cX,sc=D/(D+z2);P.push({x:cx+x1*rad*sc,y:cy+y2*rad*sc,z:z2,s:sc});}
+	return P;
+};
+
+/* Draw edges with depth-based opacity + glow */
+function drawEdges(ctx,geo,P,filter,lw,blur){
+	ctx.save();
+	ctx.shadowColor='#D4AA30';ctx.shadowBlur=blur||5;ctx.lineWidth=lw||1.2;
+	for(var i=0;i<geo.edges.length;i++){
+		var e=geo.edges[i],pa=P[e[0]],pb=P[e[1]],az=(pa.z+pb.z)/2;
+		if(filter&&!filter(az))continue;
+		var a=.15+.75*((1+az)/2);
+		ctx.strokeStyle='rgba(212,170,48,'+a.toFixed(3)+')';
+		ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();
+	}
+	ctx.restore();
+}
+
+/* Draw vertex dots with glow */
+function drawVerts(ctx,P,dr,blur){
+	ctx.save();ctx.shadowColor='#E8C84A';ctx.shadowBlur=blur||4;
+	for(var i=0;i<P.length;i++){
+		var p=P[i],a=.2+.8*((1+p.z)/2),r=dr*(.4+.6*p.s);
+		ctx.fillStyle='rgba(240,216,96,'+a.toFixed(3)+')';
+		ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
+	}
+	ctx.restore();
+}
+
+/* Draw light cone below sphere (login screen) */
+function drawGlow(ctx,cx,cy,rad){
+	ctx.save();
+	var g=ctx.createRadialGradient(cx,cy+rad*.5,rad*.1,cx,cy+rad*1.8,rad*2.2);
+	g.addColorStop(0,'rgba(255,254,240,.28)');g.addColorStop(.4,'rgba(255,254,240,.1)');g.addColorStop(1,'rgba(255,254,240,0)');
+	ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(cx-rad*.8,cy+rad*.3);ctx.lineTo(cx+rad*.8,cy+rad*.3);ctx.lineTo(cx+rad*1.6,cy+rad*3);ctx.lineTo(cx-rad*1.6,cy+rad*3);ctx.closePath();ctx.fill();
+	ctx.restore();
+}
+
+/* Draw simplified castle ghost for neural card background */
+function drawCastleGhost(ctx,cx,cy,size,alpha){
+	ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle='#888';
+	var s=size/70,ox=cx-35*s,oy=cy-25*s;
+	ctx.fillRect(ox+25*s,oy,20*s,45*s);
+	ctx.fillRect(ox+5*s,oy+15*s,14*s,30*s);ctx.fillRect(ox+51*s,oy+15*s,14*s,30*s);
+	ctx.fillRect(ox+19*s,oy+25*s,6*s,20*s);ctx.fillRect(ox+45*s,oy+25*s,6*s,20*s);
+	ctx.fillRect(ox,oy+44*s,70*s,4*s);
+	ctx.restore();
+}
+
+/* ═══ State ═══ */
+var cv,ctx,geo,flashEl,loaderEl;
+var ph={},rotY=0,lastT=0,nPct=0,phase='',stopped=false;
+var TILT_X=-0.21; // ~12 degrees fixed tilt
+var ROT_SPEED=0.314; // ~18 deg/s in radians
+
+var progSteps=[{t:0,p:0},{t:500,p:0},{t:1000,p:10},{t:1500,p:15},{t:2000,p:30},{t:2500,p:44},{t:3000,p:60},{t:8500,p:60},{t:9000,p:74},{t:9500,p:90},{t:10000,p:100}];
+var nStart=0;
+
+function $(id){return document.getElementById(id);}
+function show(id){if(ph[id])ph[id].classList.add('on');}
+function hide(id){if(ph[id])ph[id].classList.remove('on');}
+function lerp(a,b,t){return a+(b-a)*Math.max(0,Math.min(1,t));}
+function lerpP(el){for(var i=0;i<progSteps.length-1;i++){var a=progSteps[i],b=progSteps[i+1];if(el>=a.t&&el<=b.t)return lerp(a.p,b.p,(el-a.t)/(b.t-a.t));}return el<0?0:100;}
+
+function resizeCv(){var d=window.devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';ctx.setTransform(d,0,0,d,0,0);}
+
+/* ═══ Render Loop ═══ */
+function render(now){
+	if(stopped)return;requestAnimationFrame(render);
+	if(!now)now=performance.now();
+	var dt=lastT?(now-lastT)/1000:.016;lastT=now;if(dt>.1)dt=.016;
+	var w=innerWidth,h=innerHeight;ctx.clearRect(0,0,w,h);
+	rotY+=ROT_SPEED*dt;
+
+	if(phase==='login'){
+		var cx=w/2,cy=h*.18,r=Math.min(w,h)*.14;
+		drawGlow(ctx,cx,cy,r);
+		var P=geo.proj(cx,cy,r,rotY,TILT_X);
+		drawEdges(ctx,geo,P,null,1.0,4);
+		drawVerts(ctx,P,2.5,3);
+	}
+
+	if(phase==='neural'){
+		var cx=w/2,cy=h*.42,r=Math.min(w,h)*.26;
+		var P=geo.proj(cx,cy,r,rotY,TILT_X);
+
+		/* Back edges (z < 0) */
+		drawEdges(ctx,geo,P,function(z){return z<0;},1.4,5);
+
+		/* Card */
+		var cw=r*.56,ch=r*.8,cardX=cx-cw/2,cardY=cy-ch/2-r*.05;
+		ctx.save();ctx.shadowBlur=0;
+		ctx.fillStyle='rgba(130,130,130,.07)';ctx.fillRect(cardX,cardY,cw,ch);
+		ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1;ctx.strokeRect(cardX,cardY,cw,ch);
+		drawCastleGhost(ctx,cx,cardY+ch*.3,cw*.55,.1);
+		ctx.textAlign='center';ctx.textBaseline='middle';
+		ctx.fillStyle='rgba(255,255,255,.3)';ctx.font=Math.round(ch*.07)+'px "Noto Sans SC",sans-serif';
+		ctx.fillText('联际区',cx,cardY+ch*.15);
+		ctx.fillStyle='#fff';ctx.font='bold '+Math.round(ch*.16)+'px "Noto Serif SC",serif';
+		ctx.fillText('泰拉',cx,cardY+ch*.32);
+		ctx.font='900 '+Math.round(ch*.28)+'px "Noto Sans SC",sans-serif';
+		ctx.fillText('#0',cx,cardY+ch*.58);
+		if(nPct>=99){ctx.fillStyle='#D4AA30';ctx.font=Math.round(ch*.09)+'px "Noto Sans SC",sans-serif';ctx.fillText('100%',cx,cardY+ch*.75);}
+		else if(nPct>80){ctx.fillStyle='#D4AA30';ctx.font=Math.round(ch*.09)+'px "Noto Sans SC",sans-serif';ctx.fillText(Math.round(nPct)+'%',cx,cardY+ch*.75);}
+		ctx.restore();
+
+		/* Front edges (z >= 0) */
+		drawEdges(ctx,geo,P,function(z){return z>=0;},1.4,5);
+		drawVerts(ctx,P,2.8,4);
+
+		/* Progress lines (from screen edges inward) */
+		if(nPct>0){
+			var lineY=h*.51;
+			ctx.save();ctx.shadowColor='#D4AA30';ctx.shadowBlur=3;ctx.strokeStyle='#D4AA30';ctx.lineWidth=2;
+			if(nPct>=99){
+				ctx.beginPath();ctx.moveTo(0,lineY);ctx.lineTo(w,lineY);ctx.stroke();
+			}else{
+				var prog=nPct/100,lEnd=w/2*prog,rStart=w-w/2*prog;
+				ctx.beginPath();ctx.moveTo(0,lineY);ctx.lineTo(lEnd,lineY);ctx.stroke();
+				ctx.beginPath();ctx.moveTo(w,lineY);ctx.lineTo(rStart,lineY);ctx.stroke();
+				ctx.shadowBlur=0;ctx.fillStyle='#D4AA30';ctx.font=Math.max(11,h*.013)+'px "Noto Sans SC",sans-serif';
+				var txt=Math.round(nPct)+'%';
+				ctx.textAlign='left';ctx.fillText(txt,lEnd+8,lineY-10);
+				ctx.textAlign='right';ctx.fillText(txt,rStart-8,lineY-10);
+			}
+			ctx.restore();
+		}
+	}
+}
+
+/* ═══ Account System ═══ */
+var Acct={
+	K:'ak_acc',C:'ak_cur',
+	init:function(){if(!localStorage.getItem(this.K)){localStorage.setItem(this.K,JSON.stringify([{ph:'198****8849',nm:'玩家',id:'499810528'}]));localStorage.setItem(this.C,'0');}},
+	all:function(){try{return JSON.parse(localStorage.getItem(this.K))||[];}catch(e){return[];}},
+	cur:function(){var a=this.all(),i=parseInt(localStorage.getItem(this.C)||'0');return a[i]||a[0]||{ph:'—',nm:'玩家',id:'000'};},
+	set:function(i){localStorage.setItem(this.C,String(i));},
+	add:function(phone,pw){var a=this.all(),mk=phone.substring(0,3)+'****'+phone.substring(phone.length-4),id=String(100000000+Math.floor(Math.random()*899999999));a.push({ph:mk,nm:'玩家',id:id,_p:pw});localStorage.setItem(this.K,JSON.stringify(a));this.set(a.length-1);return a[a.length-1];},
+	login:function(ph,pw){var a=this.all();for(var i=0;i<a.length;i++)if(a[i]._p===pw){this.set(i);return a[i];}return null;}
+};
+
+function refreshUI(){var c=Acct.cur(),d=$('acct-disp'),id=$('acct-id');if(d)d.textContent=c.ph;if(id)id.textContent=c.id;}
+
+function setupAcct(){
+	var ov=$('acct-ov');
+	$('btn-acct').onclick=function(){ov.classList.add('show');showTab('login');};
+	$('acct-x').onclick=function(){ov.classList.remove('show');};
+	ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('show');});
+	var tabs=document.querySelectorAll('.acct-tab');
+	tabs.forEach(function(t){t.onclick=function(){showTab(t.dataset.t);};});
+	function showTab(n){tabs.forEach(function(t){t.classList.toggle('act',t.dataset.t===n);});$('tab-login').style.display=n==='login'?'':'none';$('tab-reg').style.display=n==='reg'?'':'none';$('tab-sw').style.display=n==='sw'?'':'none';if(n==='sw')renderList();}
+	function renderList(){var ul=$('acct-li'),mt=$('acct-mt'),a=Acct.all(),ci=parseInt(localStorage.getItem(Acct.C)||'0');ul.innerHTML='';if(!a.length){mt.style.display='';return;}mt.style.display='none';a.forEach(function(ac,i){var li=document.createElement('li');li.className='acct-it'+(i===ci?' cur':'');li.innerHTML='<div><div class="acct-it-n">'+ac.nm+' ('+ac.ph+')</div><div class="acct-it-id">ID: '+ac.id+'</div></div>'+(i===ci?'<span class="acct-badge">当前</span>':'');li.onclick=function(){Acct.set(i);refreshUI();ov.classList.remove('show');};ul.appendChild(li);});}
+	$('do-login').onclick=function(){var p=$('inp-phone').value.trim(),pw=$('inp-pass').value;if(!p||!pw){alert('请输入手机号和密码');return;}var r=Acct.login(p,pw);if(!r)r=Acct.add(p,pw);refreshUI();ov.classList.remove('show');};
+	$('do-reg').onclick=function(){var p=$('inp-rph').value.trim(),w1=$('inp-rp1').value,w2=$('inp-rp2').value;if(!p||p.length<11){alert('请输入有效手机号');return;}if(!w1||w1.length<6){alert('密码至少6位');return;}if(w1!==w2){alert('两次密码不一致');return;}Acct.add(p,w1);refreshUI();ov.classList.remove('show');};
+	$('btn-qr').onclick=function(){alert('扫码登录功能暂未开放');};
+	$('btn-notice').onclick=function(){alert('暂无新公告');};
+}
+
+/* ═══ Timeline ═══ */
+function autoPhases(){
+	setTimeout(function(){show('p-disc');},100);
+	setTimeout(function(){hide('p-disc');},2200);
+	setTimeout(function(){show('p-tc');},2400);
+	setTimeout(function(){hide('p-tc');},4400);
+	setTimeout(function(){show('p-load');simLoad();},4600);
+	setTimeout(function(){hide('p-load');},8000);
+	setTimeout(function(){show('p-login');phase='login';refreshUI();},8500);
+}
+
+function simLoad(){var s=Date.now(),d=3000,el=$('ld-pct');(function t(){var e=Date.now()-s,p=Math.min(99,Math.round(e/d*100));if(el)el.textContent=p+'%';if(e<d)requestAnimationFrame(t);})();}
+
+function triggerAwaken(){
+	$('lg-fade').classList.add('hid');$('lg-bar-fade').classList.add('hid');
+	setTimeout(function(){flashEl.style.transition='opacity .2s';flashEl.style.opacity='1';},600);
+	setTimeout(function(){
+		phase='neural';ph['p-login'].style.transition='opacity 0s';hide('p-login');show('p-neural');
+		loaderEl.style.background='#080808';flashEl.style.transition='opacity .5s';flashEl.style.opacity='0';
+		nStart=Date.now();runProg();
+	},800);
+	setTimeout(function(){hide('p-neural');phase='';},10800);
+	setTimeout(function(){show('p-ri');},11000);
+	setTimeout(function(){hide('p-ri');},15000);
+	setTimeout(function(){finish();},15200);
+}
+
+function runProg(){(function t(){if(stopped)return;var el=Date.now()-nStart;nPct=lerpP(el);if(nPct<100)requestAnimationFrame(t);})();}
+
+function finish(){
+	function go(){document.body.classList.remove('main-hide');document.body.classList.add('main-show');loaderEl.classList.add('outro');setTimeout(function(){loaderEl.style.display='none';stopped=true;},900);}
+	if(window._pageReady)go();else{var c=setInterval(function(){if(window._pageReady){clearInterval(c);go();}},100);}
+}
+
+/* ═══ Init ═══ */
+document.addEventListener('DOMContentLoaded',function(){
+	cv=$('sphere-cv');ctx=cv.getContext('2d');flashEl=$('intro-flash');loaderEl=$('loader-layer');
+	ph={'p-disc':$('p-disc'),'p-tc':$('p-tc'),'p-load':$('p-load'),'p-login':$('p-login'),'p-neural':$('p-neural'),'p-ri':$('p-ri')};
+	geo=new Geo(1);Acct.init();resizeCv();
+	addEventListener('resize',resizeCv);
+	/* Particles */
+	var nd=$('n-dots');for(var i=0;i<30;i++){var d=document.createElement('div');d.className='n-dot';d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';d.style.animationDelay=Math.random()*10+'s';d.style.animationDuration=(6+Math.random()*8)+'s';nd.appendChild(d);}
+	$('btn-awaken').onclick=triggerAwaken;
+	setupAcct();render();autoPhases();
+});
+})();
+</script>
+
+<script src="js/src/arknights.js"></script>
+<script src="js/src/jquery.3.3.1.min.js?v=1.0"></script>
+<script src="js/src/jquery.pjax.js?v=1.0"></script>
+<script src="js/src/GYST.js?v=1.0"></script>
+<script src="js/src/parallax.3.1.0.min.js?v=1.0"></script>
+<script src="js/scripts.js?v=1.1"></script>
+</body>
+</html>
