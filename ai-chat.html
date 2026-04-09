@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>消防安全智能问答</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:400,500,700,900|Noto+Serif+SC:700,900&display=swap&subset=chinese-simplified">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans-serif;background:#0a0a0a;color:#fff}
+
+.chat-app{display:flex;flex-direction:column;height:100%}
+
+/* Top Bar */
+.top-bar{height:48px;background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.top-bar-left{display:flex;align-items:center;gap:16px}
+.top-bar-title{font-size:14px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.85)}
+.top-bar-sep{width:1px;height:18px;background:rgba(255,255,255,.12)}
+.top-bar-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:2px}
+.top-bar-badge{font-size:9px;color:#d4aa30;border:1px solid rgba(212,170,48,.3);padding:2px 8px;letter-spacing:1px}
+.btn-back{font-size:12px;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);padding:4px 14px;cursor:pointer;transition:all .2s;background:none;letter-spacing:2px}
+.btn-back:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* System Notice */
+.sys-notice{padding:12px 24px;background:rgba(212,170,48,.03);border-bottom:1px solid rgba(212,170,48,.08);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sys-dot{width:6px;height:6px;background:#d4aa30;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sys-text{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px}
+
+/* Chat Area */
+.chat-area{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-track{background:transparent}
+.chat-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+
+.msg{max-width:720px;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.msg.ai{align-self:flex-start}
+.msg.user{align-self:flex-end}
+
+.msg-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.msg-avatar{width:28px;height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.msg.ai .msg-avatar{background:rgba(212,170,48,.15);color:#d4aa30;border:1px solid rgba(212,170,48,.2)}
+.msg.user .msg-avatar{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)}
+.msg-name{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:1px}
+.msg-time{font-size:9px;color:rgba(255,255,255,.2)}
+
+.msg-body{padding:14px 18px;font-size:13px;line-height:2;white-space:pre-wrap;word-break:break-word}
+.msg.ai .msg-body{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.75);border-left:2px solid rgba(212,170,48,.2)}
+.msg.user .msg-body{background:rgba(212,170,48,.06);border:1px solid rgba(212,170,48,.1);color:rgba(255,255,255,.85);text-align:right}
+
+.typing-indicator{display:inline-block;width:6px;height:14px;background:#d4aa30;animation:blink .6s infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Quick Questions */
+.quick-section{padding:12px 24px;border-top:1px solid rgba(255,255,255,.04);flex-shrink:0;background:rgba(0,0,0,.2)}
+.quick-label{font-size:10px;color:rgba(255,255,255,.25);letter-spacing:2px;margin-bottom:8px}
+.quick-btns{display:flex;flex-wrap:wrap;gap:6px}
+.quick-btn{font-size:11px;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.08);padding:5px 12px;cursor:pointer;transition:all .2s;background:none;font-family:'Noto Sans SC',sans-serif;white-space:nowrap}
+.quick-btn:hover{color:#d4aa30;border-color:rgba(212,170,48,.25);background:rgba(212,170,48,.04)}
+
+/* Input Bar */
+.input-bar{padding:16px 24px;background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.06);display:flex;gap:12px;align-items:flex-end;flex-shrink:0}
+.input-wrap{flex:1;position:relative}
+.input-wrap textarea{width:100%;min-height:42px;max-height:120px;padding:10px 14px;font-size:13px;font-family:'Noto Sans SC',sans-serif;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;resize:none;outline:none;line-height:1.6;transition:border-color .2s}
+.input-wrap textarea:focus{border-color:rgba(212,170,48,.3)}
+.input-wrap textarea::placeholder{color:rgba(255,255,255,.2)}
+.btn-send{height:42px;padding:0 24px;font-size:13px;font-weight:700;letter-spacing:3px;background:#d4aa30;color:#0a0a0a;border:none;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif;flex-shrink:0}
+.btn-send:hover{background:#e8c84a}
+.btn-send:disabled{opacity:.4;cursor:default}
+
+/* Welcome */
+.welcome{text-align:center;padding:40px 20px;max-width:500px;align-self:center}
+.welcome-icon{font-size:40px;margin-bottom:16px;opacity:.3}
+.welcome-title{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;letter-spacing:4px;color:rgba(255,255,255,.7);margin-bottom:8px}
+.welcome-sub{font-size:12px;color:rgba(255,255,255,.3);line-height:1.8;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<div class="chat-app">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-title">智能问答</span>
+      <span class="top-bar-sep"></span>
+      <span class="top-bar-sub">AI ASSISTANT</span>
+      <span class="top-bar-badge">DeepSeek</span>
+    </div>
+    <button class="btn-back" onclick="history.back()">返 回</button>
+  </div>
+
+  <div class="sys-notice">
+    <div class="sys-dot"></div>
+    <span class="sys-text">AI 助手已就绪 — 仅回答消防安全相关问题，其他领域问题将被礼貌拒绝</span>
+  </div>
+
+  <div class="chat-area" id="chat-area">
+    <div class="welcome">
+      <div class="welcome-icon">🔥</div>
+      <div class="welcome-title">消防安全 AI 问答</div>
+      <div class="welcome-sub">我是消防安全知识智能助手，可以回答关于火灾预防、灭火器材、<br>逃生自救、消防法规等相关问题。请输入你的问题开始对话。</div>
+    </div>
+  </div>
+
+  <div class="quick-section">
+    <div class="quick-label">快速提问</div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="quickAsk(this.textContent)">灭火器有哪些类型？</button>
+      <button class="quick-btn" onclick="quickAsk(this.textContent)">火灾逃生的正确方法？</button>
+      <button class="quick-btn" onclick="quickAsk(this.textContent)">电动车充电要注意什么？</button>
+      <button class="quick-btn" onclick="quickAsk(this.textContent)">家庭防火有哪些要点？</button>
+      <button class="quick-btn" onclick="quickAsk(this.textContent)">如何正确拨打119？</button>
+      <button class="quick-btn" onclick="quickAsk(this.textContent)">厨房着火怎么处理？</button>
+    </div>
+  </div>
+
+  <div class="input-bar">
+    <div class="input-wrap">
+      <textarea id="input" placeholder="输入消防安全相关问题..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}"></textarea>
+    </div>
+    <button class="btn-send" id="btn-send" onclick="send()">发送</button>
+  </div>
+</div>
+
+<script>
+var DEEPSEEK_KEY='sk-6845d4ca047049e1b8a59bfbde761099';
+var DEEPSEEK_URL='https://api.deepseek.com/chat/completions';
+var SYSTEM_PROMPT='你是一个专业的消防安全知识顾问，隶属于"消防安全知识互动答题平台"。\n\n【角色定位】\n你只负责回答与消防安全相关的问题，包括但不限于：火灾预防、灭火器材使用、逃生自救方法、消防法律法规、建筑消防设施、家庭/办公/工厂防火知识、危化品安全、电气火灾防范等。\n\n【约束规则】\n1. 如果用户提问的内容与消防安全完全无关（如编程、娱乐、政治等），请礼貌地回复："抱歉，我是消防安全专属AI助手，只能回答消防安全相关的问题哦。请试试问我关于火灾预防、灭火方法或逃生知识方面的问题吧！"\n2. 回答要简洁、准确、专业，适当引用《消防法》或国家标准。\n3. 涉及具体操作时给出步骤化指引。\n4. 语言风格友好、易懂，适合大众阅读。\n5. 每次回答控制在300字以内。';
+
+/* ═══ Acct mirror (shared localStorage) ═══ */
+var Acct={
+  K:'ak_acc',C:'ak_cur',
+  _def:function(o){
+    if(o.level===undefined)o.level=1;if(o.exp===undefined)o.exp=0;
+    if(o.quizAnswers===undefined)o.quizAnswers=[];if(o.quizRight===undefined)o.quizRight=0;
+    if(o.quizWrong===undefined)o.quizWrong=0;if(o.wrongList===undefined)o.wrongList=[];
+    if(o.nm===undefined)o.nm='admin';return o;
+  },
+  all:function(){try{return JSON.parse(localStorage.getItem(this.K))||[];}catch(e){return[];}},
+  curIdx:function(){return parseInt(localStorage.getItem(this.C)||'0');},
+  cur:function(){var a=this.all(),i=this.curIdx();return this._def(a[i]||a[0]||{});},
+  save:function(data){var a=this.all(),i=this.curIdx();if(a[i]){for(var k in data)a[i][k]=data[k];localStorage.setItem(this.K,JSON.stringify(a));}},
+  expForLevel:function(lv){return lv*100;},
+  addExp:function(amount){
+    var c=this.cur();c.exp+=amount;
+    while(c.exp>=this.expForLevel(c.level)){c.exp-=this.expForLevel(c.level);c.level++;}
+    this.save({exp:c.exp,level:c.level});return c;
+  }
+};
+
+var chatHistory=[{role:'system',content:SYSTEM_PROMPT}];
+var isStreaming=false;
+
+function getTime(){
+  var d=new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+
+function addMsg(role,content,streaming){
+  var area=document.getElementById('chat-area');
+  var welcome=area.querySelector('.welcome');
+  if(welcome)welcome.remove();
+
+  var div=document.createElement('div');
+  div.className='msg '+(role==='user'?'user':'ai');
+  var avatar=role==='user'?'U':'AI';
+  var name=role==='user'?'你':'消防AI助手';
+  div.innerHTML='<div class="msg-header"><div class="msg-avatar">'+avatar+'</div><span class="msg-name">'+name+'</span><span class="msg-time">'+getTime()+'</span></div><div class="msg-body">'+(streaming?'<span class="typing-indicator"></span>':escapeHtml(content))+'</div>';
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+  return div;
+}
+
+function updateAiMsg(div,text,done){
+  var body=div.querySelector('.msg-body');
+  body.innerHTML=escapeHtml(text)+(done?'':'<span class="typing-indicator"></span>');
+  document.getElementById('chat-area').scrollTop=document.getElementById('chat-area').scrollHeight;
+}
+
+function escapeHtml(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function send(){
+  if(isStreaming)return;
+  var input=document.getElementById('input');
+  var text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  input.style.height='auto';
+
+  addMsg('user',text);
+  chatHistory.push({role:'user',content:text});
+
+  isStreaming=true;
+  document.getElementById('btn-send').disabled=true;
+  var aiDiv=addMsg('ai','',true);
+  var aiText='';
+
+  fetch(DEEPSEEK_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+DEEPSEEK_KEY},
+    body:JSON.stringify({model:'deepseek-chat',messages:chatHistory,stream:true})
+  }).then(function(res){
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var reader=res.body.getReader();
+    var decoder=new TextDecoder();
+    function read(){
+      reader.read().then(function(result){
+        if(result.done){
+          updateAiMsg(aiDiv,aiText||'(AI 未返回内容)',true);
+          chatHistory.push({role:'assistant',content:aiText});
+          if(aiText)try{Acct.addExp(5);}catch(e){}
+          isStreaming=false;
+          document.getElementById('btn-send').disabled=false;
+          return;
+        }
+        var chunk=decoder.decode(result.value,{stream:true});
+        var lines=chunk.split('\n');
+        for(var i=0;i<lines.length;i++){
+          var line=lines[i].trim();
+          if(line.startsWith('data: ')&&line!=='data: [DONE]'){
+            try{
+              var json=JSON.parse(line.substring(6));
+              var delta=json.choices&&json.choices[0]&&json.choices[0].delta;
+              if(delta&&delta.content){aiText+=delta.content;updateAiMsg(aiDiv,aiText,false);}
+            }catch(e){}
+          }
+        }
+        read();
+      }).catch(function(e){
+        updateAiMsg(aiDiv,aiText||'读取响应流失败: '+e.message,true);
+        isStreaming=false;
+        document.getElementById('btn-send').disabled=false;
+      });
+    }
+    read();
+  }).catch(function(e){
+    updateAiMsg(aiDiv,'请求失败: '+e.message+'，请检查网络后重试。',true);
+    isStreaming=false;
+    document.getElementById('btn-send').disabled=false;
+  });
+}
+
+function quickAsk(text){
+  document.getElementById('input').value=text;
+  send();
+}
+
+document.getElementById('input').addEventListener('input',function(){
+  this.style.height='auto';
+  this.style.height=Math.min(this.scrollHeight,120)+'px';
+});
+</script>
+</body>
+</html>

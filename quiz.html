@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>消防安全知识答题</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:400,500,700,900|Noto+Serif+SC:700,900&display=swap&subset=chinese-simplified">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans-serif;background:#0a0a0a;color:#fff}
+
+/* Loading Screen */
+.quiz-loader{position:fixed;inset:0;z-index:999;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s}
+.quiz-loader.hide{opacity:0;pointer-events:none}
+.loader-ring{width:60px;height:60px;border:3px solid rgba(255,255,255,.08);border-top-color:#d4aa30;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{margin-top:20px;font-size:13px;color:rgba(255,255,255,.4);letter-spacing:4px}
+.loader-bar{width:200px;height:2px;background:rgba(255,255,255,.08);margin-top:16px;border-radius:1px;overflow:hidden}
+.loader-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#d4aa30,#e8c84a);transition:width .3s}
+
+/* Main Layout */
+.quiz-app{position:fixed;inset:0;display:flex;flex-direction:column;opacity:0;transition:opacity .5s}
+.quiz-app.show{opacity:1}
+
+/* Top Bar */
+.top-bar{height:48px;background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.top-bar-left{display:flex;align-items:center;gap:16px}
+.top-bar-title{font-size:14px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.85)}
+.top-bar-sep{width:1px;height:18px;background:rgba(255,255,255,.12)}
+.top-bar-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:2px}
+.btn-back{font-size:12px;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);padding:4px 14px;cursor:pointer;transition:all .2s;background:none;letter-spacing:2px}
+.btn-back:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* Progress Bar */
+.progress-section{height:36px;background:rgba(0,0,0,.3);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.04)}
+.progress-label{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:2px;white-space:nowrap}
+.progress-track{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#d4aa30,#e8c84a);transition:width .4s ease;width:0}
+.progress-num{font-size:12px;color:#d4aa30;font-weight:700;letter-spacing:1px;white-space:nowrap}
+
+/* Content Area */
+.content-area{flex:1;display:flex;overflow:hidden}
+
+/* Left Panel - Question */
+.question-panel{flex:1;display:flex;flex-direction:column;padding:clamp(24px,4vh,48px) clamp(24px,4vw,64px);overflow-y:auto;position:relative}
+.question-panel::before{content:'';position:absolute;top:0;right:0;width:40%;height:100%;background:radial-gradient(ellipse at 100% 30%,rgba(212,170,48,.03),transparent 70%);pointer-events:none}
+
+.q-category{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px}
+.q-cat-tag{font-size:10px;color:#d4aa30;border:1px solid rgba(212,170,48,.3);padding:2px 10px;letter-spacing:2px}
+.q-cat-type{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1px}
+
+.q-number{font-family:'Noto Serif SC',serif;font-size:clamp(48px,8vh,80px);font-weight:900;color:rgba(255,255,255,.06);line-height:1;margin-bottom:-10px;user-select:none}
+
+.q-text{font-size:clamp(18px,2.2vh,24px);font-weight:500;color:rgba(255,255,255,.9);line-height:1.8;margin-bottom:clamp(24px,4vh,40px);max-width:700px;position:relative;z-index:1}
+
+.q-actions{display:flex;gap:16px;margin-bottom:24px}
+.btn-answer{flex:1;max-width:200px;padding:clamp(12px,1.8vh,18px) 0;font-size:clamp(15px,1.8vh,18px);font-weight:700;letter-spacing:6px;border:2px solid rgba(255,255,255,.12);background:rgba(255,255,255,.02);color:rgba(255,255,255,.7);cursor:pointer;transition:all .25s;font-family:'Noto Sans SC',sans-serif}
+.btn-answer:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.25);color:#fff}
+.btn-answer.correct{border-color:#4caf50;color:#4caf50;background:rgba(76,175,80,.08)}
+.btn-answer.wrong{border-color:#f44336;color:#f44336;background:rgba(244,67,54,.08)}
+.btn-answer.highlight{border-color:#d4aa30;color:#d4aa30;background:rgba(212,170,48,.08)}
+.btn-answer:disabled{cursor:default;opacity:.9}
+
+/* Result Feedback */
+.feedback{margin-bottom:20px;opacity:0;transform:translateY(10px);transition:all .4s}
+.feedback.show{opacity:1;transform:translateY(0)}
+.feedback-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.feedback-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.feedback-icon.ok{background:rgba(76,175,80,.15);color:#4caf50}
+.feedback-icon.no{background:rgba(244,67,54,.15);color:#f44336}
+.feedback-label{font-size:14px;font-weight:700;letter-spacing:2px}
+.feedback-label.ok{color:#4caf50}
+.feedback-label.no{color:#f44336}
+.feedback-explain{font-size:13px;color:rgba(255,255,255,.55);line-height:1.9;padding:14px 16px;background:rgba(255,255,255,.03);border-left:2px solid rgba(255,255,255,.08);max-width:600px}
+
+/* AI Explain */
+.ai-section{margin-top:8px}
+.btn-ai{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;font-size:12px;color:#d4aa30;border:1px solid rgba(212,170,48,.25);background:rgba(212,170,48,.04);cursor:pointer;letter-spacing:2px;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.btn-ai:hover{background:rgba(212,170,48,.1);border-color:rgba(212,170,48,.4)}
+.btn-ai:disabled{opacity:.5;cursor:default}
+.ai-result{margin-top:12px;font-size:13px;color:rgba(255,255,255,.6);line-height:2;padding:16px;background:rgba(212,170,48,.03);border:1px solid rgba(212,170,48,.08);max-width:600px;white-space:pre-wrap}
+.ai-result .typing{display:inline-block;width:6px;height:14px;background:#d4aa30;animation:blink .6s infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.btn-next{margin-top:20px;padding:12px 40px;font-size:14px;font-weight:700;letter-spacing:4px;background:#d4aa30;color:#0a0a0a;border:none;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif}
+.btn-next:hover{background:#e8c84a}
+
+/* Right Panel - Stats */
+.stats-panel{width:clamp(200px,18vw,280px);background:rgba(0,0,0,.3);border-left:1px solid rgba(255,255,255,.04);padding:24px 20px;display:flex;flex-direction:column;gap:20px;flex-shrink:0;overflow-y:auto}
+.stat-block{padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)}
+.stat-label{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:3px;margin-bottom:10px}
+.stat-big{font-family:'Noto Serif SC',serif;font-size:36px;font-weight:900;color:#d4aa30;line-height:1}
+.stat-small{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.stat-row:last-child{border:none}
+.stat-row-label{font-size:11px;color:rgba(255,255,255,.35)}
+.stat-row-val{font-size:13px;font-weight:700;color:rgba(255,255,255,.7)}
+.stat-row-val.green{color:#4caf50}
+.stat-row-val.red{color:#f44336}
+
+/* Question Map */
+.q-map{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:8px}
+.q-dot{width:100%;aspect-ratio:1;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,.2);cursor:pointer;transition:all .2s}
+.q-dot:hover{border-color:rgba(255,255,255,.2)}
+.q-dot.current{border-color:#d4aa30;color:#d4aa30;background:rgba(212,170,48,.08)}
+.q-dot.right{background:rgba(76,175,80,.12);border-color:rgba(76,175,80,.3);color:#4caf50}
+.q-dot.wrong{background:rgba(244,67,54,.12);border-color:rgba(244,67,54,.3);color:#f44336}
+
+/* Result Screen */
+.result-screen{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;flex-direction:column;backdrop-filter:blur(8px)}
+.result-screen.show{display:flex}
+.result-card{text-align:center;max-width:420px;padding:48px 40px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.result-title{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:900;letter-spacing:6px;margin-bottom:8px}
+.result-sub{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:3px;margin-bottom:32px}
+.result-score{font-family:'Noto Serif SC',serif;font-size:72px;font-weight:900;color:#d4aa30;line-height:1}
+.result-score-label{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px;margin-bottom:24px;letter-spacing:2px}
+.result-stats{display:flex;gap:24px;justify-content:center;margin-bottom:32px}
+.result-stat{text-align:center}
+.result-stat-num{font-size:24px;font-weight:900}
+.result-stat-num.green{color:#4caf50}
+.result-stat-num.red{color:#f44336}
+.result-stat-text{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;letter-spacing:1px}
+.result-btns{display:flex;gap:12px;justify-content:center}
+.result-btn{padding:10px 28px;font-size:13px;letter-spacing:3px;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif;border:none}
+.result-btn.primary{background:#d4aa30;color:#0a0a0a;font-weight:700}
+.result-btn.primary:hover{background:#e8c84a}
+.result-btn.secondary{background:none;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12)}
+.result-btn.secondary:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+
+@media(max-width:768px){
+.stats-panel{display:none}
+.question-panel{padding:20px}
+}
+</style>
+</head>
+<body>
+<script src="questions/data.js"></script>
+
+<div class="quiz-loader" id="quiz-loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">LOADING</div>
+  <div class="loader-bar"><div class="loader-bar-fill" id="loader-fill"></div></div>
+</div>
+
+<div class="quiz-app" id="quiz-app">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-title">消防安全知识答题</span>
+      <span class="top-bar-sep"></span>
+      <span class="top-bar-sub">FIRE SAFETY QUIZ</span>
+    </div>
+    <button class="btn-back" onclick="history.back()">返 回</button>
+  </div>
+
+  <div class="progress-section">
+    <span class="progress-label">PROGRESS</span>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <span class="progress-num" id="progress-num">0 / 100</span>
+  </div>
+
+  <div class="content-area">
+    <div class="question-panel">
+      <div class="q-category">
+        <span class="q-cat-tag" id="q-cat">知识点</span>
+        <span class="q-cat-type" id="q-type">判断题</span>
+      </div>
+      <div class="q-number" id="q-num">#01</div>
+      <div class="q-text" id="q-text">题目加载中...</div>
+
+      <div class="q-actions">
+        <button class="btn-answer" id="btn-true" onclick="answer(true)">对</button>
+        <button class="btn-answer" id="btn-false" onclick="answer(false)">错</button>
+      </div>
+
+      <div class="feedback" id="feedback">
+        <div class="feedback-header">
+          <div class="feedback-icon" id="fb-icon"></div>
+          <span class="feedback-label" id="fb-label"></span>
+        </div>
+        <div class="feedback-explain" id="fb-explain"></div>
+        <div class="ai-section">
+          <button class="btn-ai" id="btn-ai" onclick="aiExplain()">AI 深度解析</button>
+          <div class="ai-result" id="ai-result" style="display:none"></div>
+        </div>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">下一题 →</button>
+      </div>
+    </div>
+
+    <div class="stats-panel">
+      <div class="stat-block">
+        <div class="stat-label">当前进度</div>
+        <div class="stat-big" id="stat-current">1</div>
+        <div class="stat-small" id="stat-total">共 100 题</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">答题统计</div>
+        <div class="stat-row"><span class="stat-row-label">正确</span><span class="stat-row-val green" id="stat-right">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">错误</span><span class="stat-row-val red" id="stat-wrong">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">正确率</span><span class="stat-row-val" id="stat-rate">0%</span></div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">题目导航</div>
+        <div class="q-map" id="q-map"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="result-screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-title">答题完成</div>
+    <div class="result-sub">MISSION COMPLETE</div>
+    <div class="result-score" id="result-score">0</div>
+    <div class="result-score-label">最终得分</div>
+    <div class="result-stats">
+      <div class="result-stat"><div class="result-stat-num green" id="result-right">0</div><div class="result-stat-text">正确</div></div>
+      <div class="result-stat"><div class="result-stat-num red" id="result-wrong">0</div><div class="result-stat-text">错误</div></div>
+    </div>
+    <div class="result-btns">
+      <button class="result-btn primary" onclick="restart()">重新答题</button>
+      <button class="result-btn secondary" onclick="history.back()">返回主页</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var DEEPSEEK_KEY='sk-6845d4ca047049e1b8a59bfbde761099';
+var DEEPSEEK_URL='https://api.deepseek.com/chat/completions';
+var questions=[],current=0,score={right:0,wrong:0},answers=[];
+
+/* ═══ Acct mirror (shared localStorage) ═══ */
+var Acct={
+  K:'ak_acc',C:'ak_cur',
+  _def:function(o){
+    if(o.level===undefined)o.level=1;if(o.exp===undefined)o.exp=0;
+    if(o.quizAnswers===undefined)o.quizAnswers=[];if(o.quizRight===undefined)o.quizRight=0;
+    if(o.quizWrong===undefined)o.quizWrong=0;if(o.wrongList===undefined)o.wrongList=[];
+    if(o.nm===undefined)o.nm='admin';return o;
+  },
+  all:function(){try{return JSON.parse(localStorage.getItem(this.K))||[];}catch(e){return[];}},
+  curIdx:function(){return parseInt(localStorage.getItem(this.C)||'0');},
+  cur:function(){var a=this.all(),i=this.curIdx();return this._def(a[i]||a[0]||{});},
+  save:function(data){var a=this.all(),i=this.curIdx();if(a[i]){for(var k in data)a[i][k]=data[k];localStorage.setItem(this.K,JSON.stringify(a));}},
+  expForLevel:function(lv){return lv*100;},
+  addExp:function(amount){
+    var c=this.cur();c.exp+=amount;
+    while(c.exp>=this.expForLevel(c.level)){c.exp-=this.expForLevel(c.level);c.level++;}
+    this.save({exp:c.exp,level:c.level});return c;
+  }
+};
+
+function init(){
+  var fill=document.getElementById('loader-fill');
+  questions=QUIZ_DATA;
+  fill.style.width='100%';
+
+  var acct=Acct.cur();
+  if(acct.quizAnswers&&acct.quizAnswers.length>0){
+    answers=acct.quizAnswers.slice();
+    score.right=acct.quizRight||0;
+    score.wrong=acct.quizWrong||0;
+    var lastAnswered=-1;
+    for(var i=answers.length-1;i>=0;i--){if(answers[i]!==undefined&&answers[i]!==null){lastAnswered=i;break;}}
+    current=Math.min(lastAnswered+1,questions.length-1);
+  }
+
+  buildMap();
+  updateStats();
+  setTimeout(function(){
+    document.getElementById('quiz-loader').classList.add('hide');
+    document.getElementById('quiz-app').classList.add('show');
+    showQuestion(current);
+  },300);
+}
+
+function buildMap(){
+  var map=document.getElementById('q-map');
+  map.innerHTML='';
+  for(var i=0;i<questions.length;i++){
+    var d=document.createElement('div');
+    d.className='q-dot';
+    d.textContent=i+1;
+    d.dataset.idx=i;
+    d.onclick=function(){var idx=parseInt(this.dataset.idx);if(answers[idx]!==undefined)jumpTo(idx);};
+    map.appendChild(d);
+  }
+}
+
+function jumpTo(idx){current=idx;showQuestion(idx);}
+
+function showQuestion(idx){
+  var q=questions[idx];
+  document.getElementById('q-cat').textContent=q.point;
+  document.getElementById('q-type').textContent=q.type;
+  document.getElementById('q-num').textContent='#'+String(idx+1).padStart(2,'0');
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('btn-true').disabled=false;
+  document.getElementById('btn-false').disabled=false;
+  document.getElementById('btn-true').className='btn-answer';
+  document.getElementById('btn-false').className='btn-answer';
+  document.getElementById('feedback').classList.remove('show');
+  document.getElementById('ai-result').style.display='none';
+  document.getElementById('ai-result').textContent='';
+  document.getElementById('btn-ai').disabled=false;
+  updateProgress();
+  updateMap();
+
+  if(answers[idx]!==undefined&&answers[idx]!==null){
+    showFeedback(idx,answers[idx]);
+  }
+}
+
+function answer(val){
+  var q=questions[current];
+  var isCorrect=val===q.answer;
+  if(answers[current]===undefined||answers[current]===null){
+    answers[current]=val;
+    if(isCorrect){score.right++;Acct.addExp(10);}
+    else{score.wrong++;Acct.addExp(3);var c=Acct.cur();var wl=c.wrongList||[];if(wl.indexOf(current)===-1){wl.push(current);Acct.save({wrongList:wl});}}
+    Acct.save({quizAnswers:answers,quizRight:score.right,quizWrong:score.wrong});
+  }
+  showFeedback(current,val);
+  updateStats();
+}
+
+function showFeedback(idx,val){
+  var q=questions[idx];
+  var isCorrect=val===q.answer;
+  document.getElementById('btn-true').disabled=true;
+  document.getElementById('btn-false').disabled=true;
+
+  if(q.answer){
+    document.getElementById('btn-true').className='btn-answer '+(val?'correct':'highlight');
+    document.getElementById('btn-false').className='btn-answer '+(!val?'wrong':'');
+  }else{
+    document.getElementById('btn-false').className='btn-answer '+(!val?'correct':'highlight');
+    document.getElementById('btn-true').className='btn-answer '+(val?'wrong':'');
+  }
+
+  var icon=document.getElementById('fb-icon');
+  var label=document.getElementById('fb-label');
+  icon.className='feedback-icon '+(isCorrect?'ok':'no');
+  icon.textContent=isCorrect?'✓':'✗';
+  label.className='feedback-label '+(isCorrect?'ok':'no');
+  label.textContent=isCorrect?'回答正确':'回答错误';
+  document.getElementById('fb-explain').textContent=q.explain;
+  document.getElementById('feedback').classList.add('show');
+
+  var expInfo=isCorrect?'（+10 经验）':'（+3 经验）';
+  label.textContent+=' '+expInfo;
+
+  if(current>=questions.length-1){
+    document.getElementById('btn-next').textContent='查看结果 →';
+  }else{
+    document.getElementById('btn-next').textContent='下一题 →';
+  }
+}
+
+function nextQuestion(){
+  if(current>=questions.length-1){
+    showResult();return;
+  }
+  current++;
+  showQuestion(current);
+}
+
+function updateProgress(){
+  var answered=answers.filter(function(a){return a!==undefined&&a!==null;}).length;
+  document.getElementById('progress-fill').style.width=(answered/questions.length*100)+'%';
+  document.getElementById('progress-num').textContent=answered+' / '+questions.length;
+  document.getElementById('stat-current').textContent=current+1;
+  document.getElementById('stat-total').textContent='共 '+questions.length+' 题';
+}
+
+function updateStats(){
+  document.getElementById('stat-right').textContent=score.right;
+  document.getElementById('stat-wrong').textContent=score.wrong;
+  var total=score.right+score.wrong;
+  document.getElementById('stat-rate').textContent=total?Math.round(score.right/total*100)+'%':'0%';
+}
+
+function updateMap(){
+  var dots=document.querySelectorAll('.q-dot');
+  dots.forEach(function(d,i){
+    d.className='q-dot';
+    if(i===current)d.classList.add('current');
+    if(answers[i]!==undefined&&answers[i]!==null){
+      d.classList.add(answers[i]===questions[i].answer?'right':'wrong');
+    }
+  });
+}
+
+function showResult(){
+  var total=score.right+score.wrong;
+  var pct=total?Math.round(score.right/total*100):0;
+  document.getElementById('result-score').textContent=pct;
+  document.getElementById('result-right').textContent=score.right;
+  document.getElementById('result-wrong').textContent=score.wrong;
+  document.getElementById('result-screen').classList.add('show');
+}
+
+function restart(){
+  current=0;score={right:0,wrong:0};answers=[];
+  Acct.save({quizAnswers:[],quizRight:0,quizWrong:0,wrongList:[]});
+  document.getElementById('result-screen').classList.remove('show');
+  updateStats();buildMap();showQuestion(0);
+}
+
+function aiExplain(){
+  var q=questions[current];
+  var btn=document.getElementById('btn-ai');
+  var box=document.getElementById('ai-result');
+  btn.disabled=true;
+  box.style.display='block';
+  box.innerHTML='<span class="typing"></span>';
+
+  var body=JSON.stringify({
+    model:'deepseek-chat',
+    messages:[
+      {role:'system',content:'你是一个专业的消防安全知识专家。请对用户提供的消防安全判断题进行详细、深入的解析。解释答案的原因，引用相关消防法规或安全常识，并给出实用的防火建议。回答控制在200字以内，语言简洁专业。'},
+      {role:'user',content:'题目：'+q.text+'\n正确答案：'+(q.answer?'对':'错')+'\n基础解析：'+q.explain+'\n\n请给出更详细的AI解析。'}
+    ],
+    stream:true
+  });
+
+  fetch(DEEPSEEK_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+DEEPSEEK_KEY},
+    body:body
+  }).then(function(res){
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var reader=res.body.getReader();
+    var decoder=new TextDecoder();
+    var text='';
+    function read(){
+      reader.read().then(function(result){
+        if(result.done){box.textContent=text;return;}
+        var chunk=decoder.decode(result.value,{stream:true});
+        var lines=chunk.split('\n');
+        for(var i=0;i<lines.length;i++){
+          var line=lines[i].trim();
+          if(line.startsWith('data: ')&&line!=='data: [DONE]'){
+            try{
+              var json=JSON.parse(line.substring(6));
+              var delta=json.choices&&json.choices[0]&&json.choices[0].delta;
+              if(delta&&delta.content){text+=delta.content;box.innerHTML=text.replace(/\n/g,'<br>')+'<span class="typing"></span>';}
+            }catch(e){}
+          }
+        }
+        read();
+      }).catch(function(e){box.textContent=text||'读取流失败';});
+    }
+    read();
+  }).catch(function(e){
+    box.textContent='AI解析请求失败，请稍后重试。';
+    btn.disabled=false;
+  });
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

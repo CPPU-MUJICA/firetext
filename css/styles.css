@@ -91,47 +91,61 @@ header {
 	margin: -79px auto auto 54px;
 	height: 115px;
 	width: 115px;
-	background: url(../img/UI_HOME.png);
-	background-position: 0px -295px;
-	background-size: auto 1103%;
+	border-radius: 50%;
+	background: conic-gradient(#444 0deg, #444 360deg);
+	-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+	mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
 }
 
 .chart-pr {
+	--progress: 0;
 	position: absolute;
 	margin: -79px auto auto 54px;
 	height: 115px;
 	width: 115px;
-	background: url(../img/UI_HOME.png);
-	background-position: 488px -398px;
-	background-size: auto 1103%;
+	border-radius: 50%;
+	background: conic-gradient(#d4aa30 0deg, #d4aa30 calc(var(--progress) * 360deg), transparent calc(var(--progress) * 360deg));
+	-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+	mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+	transition: background 0.4s ease;
 }
 
 .level-num {
 	font-family: 'Noto Sans SC', sans-serif;
 	color: #fff;
-	font-size: 60px;
+	font-size: 50px;
 	font-weight: 500;
 	position: absolute;
-	margin: -60px 80px;
+	width: 115px;
+	height: 115px;
+	left: 54px;
+	top: -79px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
 }
 
 .user-info .name {
 	font-family: 'Noto Sans SC', sans-serif;
 	color: #fff;
-	font-size: 33px;
+	font-size: 28px;
 	font-weight: 500;
 	position: absolute;
-	margin: 134px 62px;
+	top: 134px;
+	left: 62px;
+	white-space: nowrap;
 }
 
 .user-info .id {
 	font-family: 'Noto Sans SC', sans-serif;
 	color: #fff;
-	font-size: 15px;
+	font-size: 13px;
 	font-weight: 500;
 	position: absolute;
-	margin: 171px 72px;
-	width: 100%;
+	top: 168px;
+	left: 62px;
+	white-space: nowrap;
 }
 
 /* view box layout */
@@ -276,9 +290,9 @@ header {
 .left.menu.box .container .bottom .left .activity-img {
 	height: 115px;
 	width: 251px;
-	background: url(../img/UI_HOME_ACTIVITY_BANNER_ZONE.png);
-	background-position: -14px -38px;
-	background-size: 238%;
+	background: url(../img/98532e28efed8f4f1026d58cf030e2bc.jpg);
+	background-position: center;
+	background-size: cover;
 }
 
 .left.menu.box .container .bottom .right .pos-1 .friends {
@@ -959,16 +973,22 @@ header {
 
 /* character perspective box */
 #char-arts-layer {
-	left: 70px !important;
-	top: -70px !important;
+	left: 120px !important;
+	top: 60px !important;
 }
 
 .char.perspective.box {
-	width: 80%;
+	width: 55%;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	height: 80vh;
 }
 
 .char.perspective.box img {
-	width: 100%
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
 
 #canvas-dust {

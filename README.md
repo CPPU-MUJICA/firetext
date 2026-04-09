@@ -1,4 +1,4 @@
-# Arknights UI：H5 + CSS 复刻明日方舟主界面
+# 消防安全知识互动答题平台
 ![screenshot](screenshot.png)
 
 ## Demo
