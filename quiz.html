@@ -135,6 +135,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans
 </head>
 <body>
 <script src="questions/data.js"></script>
+<script src="js/api-config.js"></script>
 
 <div class="quiz-loader" id="quiz-loader">
   <div class="loader-ring"></div>
@@ -224,9 +225,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans
 </div>
 
 <script>
-var DEEPSEEK_KEY='sk-6845d4ca047049e1b8a59bfbde761099';
-var DEEPSEEK_URL='https://api.deepseek.com/chat/completions';
 var questions=[],current=0,score={right:0,wrong:0},answers=[];
+var isRandomMode=false;
+var RANDOM_COUNT=10;
 
 /* ═══ Acct mirror (shared localStorage) ═══ */
 var Acct={
@@ -249,21 +250,42 @@ var Acct={
   }
 };
 
+function shuffleArray(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
+}
+
+function parseParams(){
+  var p={};var s=location.search.substring(1);if(!s)return p;
+  s.split('&').forEach(function(kv){var pair=kv.split('=');if(pair[0])p[decodeURIComponent(pair[0])]=decodeURIComponent(pair[1]||'');});
+  return p;
+}
+
 function init(){
   var fill=document.getElementById('loader-fill');
-  questions=QUIZ_DATA;
-  fill.style.width='100%';
+  var params=parseParams();
 
-  var acct=Acct.cur();
-  if(acct.quizAnswers&&acct.quizAnswers.length>0){
-    answers=acct.quizAnswers.slice();
-    score.right=acct.quizRight||0;
-    score.wrong=acct.quizWrong||0;
-    var lastAnswered=-1;
-    for(var i=answers.length-1;i>=0;i--){if(answers[i]!==undefined&&answers[i]!==null){lastAnswered=i;break;}}
-    current=Math.min(lastAnswered+1,questions.length-1);
+  if(params.mode==='random'){
+    isRandomMode=true;
+    var count=parseInt(params.count)||RANDOM_COUNT;
+    questions=shuffleArray(QUIZ_DATA).slice(0,count);
+    document.querySelector('.top-bar-title').textContent='随机抽题';
+    document.querySelector('.top-bar-sub').textContent='RANDOM QUIZ · '+questions.length+'题';
+  }else{
+    questions=QUIZ_DATA;
+    var acct=Acct.cur();
+    if(acct.quizAnswers&&acct.quizAnswers.length>0){
+      answers=acct.quizAnswers.slice();
+      score.right=acct.quizRight||0;
+      score.wrong=acct.quizWrong||0;
+      var lastAnswered=-1;
+      for(var i=answers.length-1;i>=0;i--){if(answers[i]!==undefined&&answers[i]!==null){lastAnswered=i;break;}}
+      current=Math.min(lastAnswered+1,questions.length-1);
+    }
   }
 
+  fill.style.width='100%';
   buildMap();
   updateStats();
   setTimeout(function(){
@@ -316,8 +338,16 @@ function answer(val){
   if(answers[current]===undefined||answers[current]===null){
     answers[current]=val;
     if(isCorrect){score.right++;Acct.addExp(10);}
-    else{score.wrong++;Acct.addExp(3);var c=Acct.cur();var wl=c.wrongList||[];if(wl.indexOf(current)===-1){wl.push(current);Acct.save({wrongList:wl});}}
-    Acct.save({quizAnswers:answers,quizRight:score.right,quizWrong:score.wrong});
+    else{score.wrong++;Acct.addExp(3);
+      if(!isRandomMode){
+        var c=Acct.cur();var wl=c.wrongList||[];
+        var origIdx=QUIZ_DATA.indexOf(q);
+        if(origIdx!==-1&&wl.indexOf(origIdx)===-1){wl.push(origIdx);Acct.save({wrongList:wl});}
+      }
+    }
+    if(!isRandomMode){
+      Acct.save({quizAnswers:answers,quizRight:score.right,quizWrong:score.wrong});
+    }
   }
   showFeedback(current,val);
   updateStats();
@@ -401,7 +431,11 @@ function showResult(){
 
 function restart(){
   current=0;score={right:0,wrong:0};answers=[];
-  Acct.save({quizAnswers:[],quizRight:0,quizWrong:0,wrongList:[]});
+  if(isRandomMode){
+    questions=shuffleArray(QUIZ_DATA).slice(0,parseInt(parseParams().count)||RANDOM_COUNT);
+  }else{
+    Acct.save({quizAnswers:[],quizRight:0,quizWrong:0,wrongList:[]});
+  }
   document.getElementById('result-screen').classList.remove('show');
   updateStats();buildMap();showQuestion(0);
 }

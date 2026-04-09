@@ -18,6 +18,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans
 .top-bar-sep{width:1px;height:18px;background:rgba(255,255,255,.12)}
 .top-bar-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:2px}
 .top-bar-badge{font-size:9px;color:#d4aa30;border:1px solid rgba(212,170,48,.3);padding:2px 8px;letter-spacing:1px}
+.top-bar-select{font-size:11px;max-width:200px;padding:4px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85);border-radius:2px;cursor:pointer;font-family:'Noto Sans SC',sans-serif}
+.top-bar-select:focus{outline:none;border-color:rgba(212,170,48,.35)}
+.top-bar-link{font-size:11px;color:rgba(100,200,255,.75);text-decoration:none;margin-left:4px}
+.top-bar-link:hover{text-decoration:underline;color:rgba(120,210,255,.95)}
 .btn-back{font-size:12px;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);padding:4px 14px;cursor:pointer;transition:all .2s;background:none;letter-spacing:2px}
 .btn-back:hover{color:#fff;border-color:rgba(255,255,255,.3)}
 
@@ -85,14 +89,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans
       <span class="top-bar-title">智能问答</span>
       <span class="top-bar-sep"></span>
       <span class="top-bar-sub">AI ASSISTANT</span>
-      <span class="top-bar-badge">DeepSeek</span>
+      <span class="top-bar-badge" id="profile-badge">模型</span>
+      <select class="top-bar-select" id="profile-select" title="切换对话模型"></select>
+      <a class="top-bar-link" href="api.html" id="link-api">API 设置</a>
     </div>
     <button class="btn-back" onclick="history.back()">返 回</button>
   </div>
 
   <div class="sys-notice">
     <div class="sys-dot"></div>
-    <span class="sys-text">AI 助手已就绪 — 仅回答消防安全相关问题，其他领域问题将被礼貌拒绝</span>
+    <span class="sys-text">AI 助手已就绪 — 仅回答消防安全相关问题。可在上方切换已配置的模型，或前往 <a href="api.html" style="color:rgba(212,170,48,.8)">API 设置</a> 添加 OpenAI、Claude 等。</span>
   </div>
 
   <div class="chat-area" id="chat-area">
@@ -123,9 +129,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans SC',sans
   </div>
 </div>
 
+<script src="js/api-config.js"></script>
 <script>
-var DEEPSEEK_KEY='sk-6845d4ca047049e1b8a59bfbde761099';
-var DEEPSEEK_URL='https://api.deepseek.com/chat/completions';
 var SYSTEM_PROMPT='你是一个专业的消防安全知识顾问，隶属于"消防安全知识互动答题平台"。\n\n【角色定位】\n你只负责回答与消防安全相关的问题，包括但不限于：火灾预防、灭火器材使用、逃生自救方法、消防法律法规、建筑消防设施、家庭/办公/工厂防火知识、危化品安全、电气火灾防范等。\n\n【约束规则】\n1. 如果用户提问的内容与消防安全完全无关（如编程、娱乐、政治等），请礼貌地回复："抱歉，我是消防安全专属AI助手，只能回答消防安全相关的问题哦。请试试问我关于火灾预防、灭火方法或逃生知识方面的问题吧！"\n2. 回答要简洁、准确、专业，适当引用《消防法》或国家标准。\n3. 涉及具体操作时给出步骤化指引。\n4. 语言风格友好、易懂，适合大众阅读。\n5. 每次回答控制在300字以内。';
 
 /* ═══ Acct mirror (shared localStorage) ═══ */
@@ -151,6 +156,29 @@ var Acct={
 
 var chatHistory=[{role:'system',content:SYSTEM_PROMPT}];
 var isStreaming=false;
+var rafPaint=null;
+
+function fillProfileSelect(){
+  var sel=document.getElementById('profile-select');
+  var badge=document.getElementById('profile-badge');
+  if(!sel)return;
+  var s=FireTextAI.load();
+  sel.innerHTML='';
+  s.profiles.forEach(function(p){
+    var o=document.createElement('option');
+    o.value=p.id;
+    o.textContent=p.name+(p.provider==='anthropic'?' · Claude':' · 兼容');
+    sel.appendChild(o);
+  });
+  sel.value=s.activeId;
+  var cur=FireTextAI.getActiveProfile();
+  if(badge&&cur)badge.textContent=cur.name;
+  sel.onchange=function(){
+    FireTextAI.setActiveId(sel.value);
+    var p=FireTextAI.getActiveProfile();
+    if(badge&&p)badge.textContent=p.name;
+  };
+}
 
 function getTime(){
   var d=new Date();
@@ -174,8 +202,19 @@ function addMsg(role,content,streaming){
 
 function updateAiMsg(div,text,done){
   var body=div.querySelector('.msg-body');
-  body.innerHTML=escapeHtml(text)+(done?'':'<span class="typing-indicator"></span>');
-  document.getElementById('chat-area').scrollTop=document.getElementById('chat-area').scrollHeight;
+  var area=document.getElementById('chat-area');
+  if(done){
+    if(rafPaint){cancelAnimationFrame(rafPaint);rafPaint=null;}
+    body.innerHTML=escapeHtml(text);
+    area.scrollTop=area.scrollHeight;
+    return;
+  }
+  if(rafPaint)cancelAnimationFrame(rafPaint);
+  rafPaint=requestAnimationFrame(function(){
+    rafPaint=null;
+    body.innerHTML=escapeHtml(text)+'<span class="typing-indicator"></span>';
+    area.scrollTop=area.scrollHeight;
+  });
 }
 
 function escapeHtml(t){
@@ -197,49 +236,24 @@ function send(){
   document.getElementById('btn-send').disabled=true;
   var aiDiv=addMsg('ai','',true);
   var aiText='';
+  var profile=FireTextAI.getActiveProfile();
 
-  fetch(DEEPSEEK_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+DEEPSEEK_KEY},
-    body:JSON.stringify({model:'deepseek-chat',messages:chatHistory,stream:true})
-  }).then(function(res){
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    var reader=res.body.getReader();
-    var decoder=new TextDecoder();
-    function read(){
-      reader.read().then(function(result){
-        if(result.done){
-          updateAiMsg(aiDiv,aiText||'(AI 未返回内容)',true);
-          chatHistory.push({role:'assistant',content:aiText});
-          if(aiText)try{Acct.addExp(5);}catch(e){}
-          isStreaming=false;
-          document.getElementById('btn-send').disabled=false;
-          return;
-        }
-        var chunk=decoder.decode(result.value,{stream:true});
-        var lines=chunk.split('\n');
-        for(var i=0;i<lines.length;i++){
-          var line=lines[i].trim();
-          if(line.startsWith('data: ')&&line!=='data: [DONE]'){
-            try{
-              var json=JSON.parse(line.substring(6));
-              var delta=json.choices&&json.choices[0]&&json.choices[0].delta;
-              if(delta&&delta.content){aiText+=delta.content;updateAiMsg(aiDiv,aiText,false);}
-            }catch(e){}
-          }
-        }
-        read();
-      }).catch(function(e){
-        updateAiMsg(aiDiv,aiText||'读取响应流失败: '+e.message,true);
-        isStreaming=false;
-        document.getElementById('btn-send').disabled=false;
-      });
-    }
-    read();
-  }).catch(function(e){
-    updateAiMsg(aiDiv,'请求失败: '+e.message+'，请检查网络后重试。',true);
+  function finishOk(){
+    updateAiMsg(aiDiv,aiText||'(AI 未返回内容)',true);
+    chatHistory.push({role:'assistant',content:aiText});
+    if(aiText)try{Acct.addExp(5);}catch(e){}
     isStreaming=false;
     document.getElementById('btn-send').disabled=false;
+  }
+
+  FireTextAI.streamChat(profile,chatHistory,{
+    onToken:function(t){aiText+=t;updateAiMsg(aiDiv,aiText,false);},
+    onDone:finishOk,
+    onError:function(e){
+      updateAiMsg(aiDiv,(aiText?aiText+'\n\n':'')+'请求失败: '+(e&&e.message?e.message:String(e))+' 请检查 API 设置中的 Key、Base URL 与模型名。',true);
+      isStreaming=false;
+      document.getElementById('btn-send').disabled=false;
+    }
   });
 }
 
@@ -252,6 +266,12 @@ document.getElementById('input').addEventListener('input',function(){
   this.style.height='auto';
   this.style.height=Math.min(this.scrollHeight,120)+'px';
 });
+
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible')fillProfileSelect();
+});
+window.addEventListener('pageshow',fillProfileSelect);
+fillProfileSelect();
 </script>
 </body>
 </html>

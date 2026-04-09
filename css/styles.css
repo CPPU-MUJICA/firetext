@@ -79,11 +79,11 @@ header {
 .user-level {
 	position: absolute;
 	margin-top: 89px;
-	height: 34px;
+	height: 22px;
 	width: 172px;
 	background: url(../img/UI_HOME.png);
-	background-position: -20px -238px;
-	background-size: auto 3650%;
+	background-position: -20px -244px;
+	background-size: auto 5641%;
 }
 
 .chart-bg {
@@ -93,8 +93,8 @@ header {
 	width: 115px;
 	border-radius: 50%;
 	background: conic-gradient(#444 0deg, #444 360deg);
-	-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
-	mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+	-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+	mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
 }
 
 .chart-pr {
@@ -105,8 +105,8 @@ header {
 	width: 115px;
 	border-radius: 50%;
 	background: conic-gradient(#d4aa30 0deg, #d4aa30 calc(var(--progress) * 360deg), transparent calc(var(--progress) * 360deg));
-	-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
-	mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+	-webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+	mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
 	transition: background 0.4s ease;
 }
 
@@ -132,9 +132,11 @@ header {
 	font-size: 28px;
 	font-weight: 500;
 	position: absolute;
-	top: 134px;
+	top: 122px;
 	left: 62px;
 	white-space: nowrap;
+	writing-mode: horizontal-tb;
+	direction: ltr;
 }
 
 .user-info .id {
@@ -143,7 +145,7 @@ header {
 	font-size: 13px;
 	font-weight: 500;
 	position: absolute;
-	top: 168px;
+	top: 156px;
 	left: 62px;
 	white-space: nowrap;
 }

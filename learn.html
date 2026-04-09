@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>消防知识学习</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:400,500,700,900|Noto+Serif+SC:700,900&display=swap&subset=chinese-simplified">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;font-family:'Noto Sans SC',sans-serif;background:#0a0a0a;color:#fff}
+
+.learn-app{display:flex;flex-direction:column;height:100%}
+
+.top-bar{height:48px;background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.top-bar-left{display:flex;align-items:center;gap:16px}
+.top-bar-title{font-size:14px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.85)}
+.top-bar-sep{width:1px;height:18px;background:rgba(255,255,255,.12)}
+.top-bar-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:2px}
+.top-bar-badge{font-size:9px;color:#d4aa30;border:1px solid rgba(212,170,48,.3);padding:2px 8px;letter-spacing:1px}
+.btn-back{font-size:12px;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);padding:4px 14px;cursor:pointer;transition:all .2s;background:none;letter-spacing:2px}
+.btn-back:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+
+.sys-notice{padding:12px 24px;background:rgba(212,170,48,.03);border-bottom:1px solid rgba(212,170,48,.08);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sys-dot{width:6px;height:6px;background:#d4aa30;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sys-text{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px}
+
+.main-area{flex:1;display:flex;overflow:hidden}
+
+/* Left – Topics */
+.topics-panel{width:clamp(260px,22vw,340px);background:rgba(0,0,0,.3);border-right:1px solid rgba(255,255,255,.04);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.topics-header{padding:16px 18px 10px;font-size:10px;color:rgba(255,255,255,.25);letter-spacing:3px;flex-shrink:0}
+.topics-list{flex:1;overflow-y:auto;padding:0 10px 16px}
+.topics-list::-webkit-scrollbar{width:3px}
+.topics-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:2px}
+
+.topic-card{padding:14px 16px;margin-bottom:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .25s}
+.topic-card:hover{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
+.topic-card.active{border-color:rgba(212,170,48,.3);background:rgba(212,170,48,.04)}
+.topic-card.loading{opacity:.6;pointer-events:none}
+.tc-icon{font-size:18px;margin-bottom:6px}
+.tc-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:1px;margin-bottom:3px}
+.tc-desc{font-size:11px;color:rgba(255,255,255,.35);line-height:1.6}
+.tc-badge{display:inline-block;font-size:9px;color:#d4aa30;border:1px solid rgba(212,170,48,.2);padding:1px 6px;margin-top:6px;letter-spacing:1px}
+
+.custom-topic{padding:12px 10px;border-top:1px solid rgba(255,255,255,.04);flex-shrink:0;display:flex;gap:8px}
+.custom-input{flex:1;padding:8px 12px;font-size:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#fff;font-family:'Noto Sans SC',sans-serif;outline:none}
+.custom-input:focus{border-color:rgba(212,170,48,.3)}
+.custom-input::placeholder{color:rgba(255,255,255,.2)}
+.custom-btn{padding:8px 14px;font-size:11px;font-weight:700;background:#d4aa30;color:#0a0a0a;border:none;cursor:pointer;font-family:'Noto Sans SC',sans-serif;letter-spacing:1px;flex-shrink:0}
+.custom-btn:hover{background:#e8c84a}
+.custom-btn:disabled{opacity:.4;cursor:default}
+
+/* Right – Content */
+.content-panel{flex:1;overflow-y:auto;padding:clamp(20px,3vh,40px) clamp(20px,3vw,48px)}
+.content-panel::-webkit-scrollbar{width:4px}
+.content-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+
+.content-welcome{text-align:center;padding:80px 20px;max-width:500px;margin:0 auto}
+.cw-icon{font-size:48px;opacity:.2;margin-bottom:16px}
+.cw-title{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;color:rgba(255,255,255,.25);letter-spacing:4px;margin-bottom:8px}
+.cw-sub{font-size:12px;color:rgba(255,255,255,.15);line-height:1.8;letter-spacing:1px}
+
+/* Loading Steps */
+.content-loading{text-align:center;padding:60px 20px}
+.cl-ring{width:40px;height:40px;border:3px solid rgba(255,255,255,.06);border-top-color:#d4aa30;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cl-text{font-size:12px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:6px}
+.cl-step{font-size:11px;color:rgba(212,170,48,.6);letter-spacing:1px}
+
+/* Sources */
+.sources-box{margin-bottom:24px;padding:16px 18px;background:rgba(76,175,80,.03);border:1px solid rgba(76,175,80,.1)}
+.sources-title{font-size:10px;color:rgba(76,175,80,.7);letter-spacing:3px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sources-title::before{content:'';width:6px;height:6px;background:#4caf50;border-radius:50%}
+.source-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.source-item:last-child{border:none}
+.source-idx{font-size:10px;color:rgba(76,175,80,.5);min-width:18px;padding-top:2px}
+.source-info{flex:1}
+.source-link{font-size:12px;color:rgba(100,200,255,.8);text-decoration:none;line-height:1.5;display:block}
+.source-link:hover{text-decoration:underline;color:rgba(120,210,255,1)}
+.source-snippet{font-size:11px;color:rgba(255,255,255,.3);line-height:1.6;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Article */
+.article{max-width:760px;animation:articleIn .5s ease}
+@keyframes articleIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.article-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.article-cat{font-size:10px;color:#d4aa30;border:1px solid rgba(212,170,48,.25);padding:2px 10px;letter-spacing:2px;display:inline-block;margin-bottom:10px}
+.article-title{font-family:'Noto Serif SC',serif;font-size:clamp(22px,2.8vh,30px);font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2px;line-height:1.5;margin-bottom:6px}
+.article-meta{font-size:11px;color:rgba(255,255,255,.25);letter-spacing:1px}
+
+.article-body{font-size:14px;color:rgba(255,255,255,.7);line-height:2.2;white-space:pre-wrap;word-break:break-word;min-height:120px}
+.article-body .typing-indicator{display:inline-block;width:6px;height:14px;background:#d4aa30;animation:blink .6s infinite;vertical-align:middle;margin-left:2px}
+.article-footer{display:none;margin-top:32px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);gap:12px}
+.article-footer.show{display:flex}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.af-btn{padding:8px 20px;font-size:12px;letter-spacing:2px;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif;border:none}
+.af-btn.primary{background:#d4aa30;color:#0a0a0a;font-weight:700}
+.af-btn.primary:hover{background:#e8c84a}
+.af-btn.secondary{background:none;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)}
+.af-btn.secondary:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+
+@media(max-width:768px){
+.topics-panel{display:none}
+.main-area{flex-direction:column}
+.content-panel{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="learn-app">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-title">知识学习</span>
+      <span class="top-bar-sep"></span>
+      <span class="top-bar-sub">消防安全案例分析</span>
+      <span class="top-bar-badge">联网 + AI</span>
+    </div>
+    <button class="btn-back" onclick="history.back()">返 回</button>
+  </div>
+
+  <div class="sys-notice">
+    <div class="sys-dot"></div>
+    <span class="sys-text">AI 分析使用你在「<a href="api.html" style="color:rgba(212,170,48,.85)">API 设置</a>」中保存的当前模型与密钥；若出现 HTTP 401，说明密钥无效或未填写。</span>
+  </div>
+
+  <div class="main-area">
+    <div class="topics-panel">
+      <div class="topics-header">选择学习主题</div>
+      <div class="topics-list" id="topics-list"></div>
+      <div class="custom-topic">
+        <input class="custom-input" id="custom-input" placeholder="自定义搜索主题…" onkeydown="if(event.key==='Enter')customSearch()">
+        <button class="custom-btn" id="custom-btn" onclick="customSearch()">搜索</button>
+      </div>
+    </div>
+
+    <div class="content-panel" id="content-panel">
+      <div class="content-welcome">
+        <div class="cw-icon">📰</div>
+        <div class="cw-title">消防知识学习</div>
+        <div class="cw-sub">选择左侧主题或自定义搜索，系统将联网搜索真实消防新闻<br>并由 AI 进行专业分析、提炼关键知识点和防范建议</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api-config.js"></script>
+<script>
+(function(){
+'use strict';
+
+var JINA_SEARCH_Q='https://s.jina.ai/?q=';
+
+var TOPICS=[
+  {id:'residential',icon:'🏠',title:'住宅火灾案例',desc:'居民楼、高层住宅火灾真实事件',query:'最新 居民住宅 火灾事故 案例'},
+  {id:'ev',icon:'🔋',title:'电动车火灾',desc:'电动车充电起火事故真实报道',query:'最新 电动车 充电 起火 火灾事故'},
+  {id:'factory',icon:'🏭',title:'工厂仓库火灾',desc:'工业场所火灾真实新闻报道',query:'最新 工厂 仓库 火灾事故 新闻'},
+  {id:'forest',icon:'🌲',title:'森林野外火灾',desc:'山火、草原火灾真实案例',query:'最新 森林火灾 山火 新闻报道'},
+  {id:'school',icon:'🏫',title:'校园消防安全',desc:'学校消防安全事件与演练',query:'最新 校园 学校 消防安全 事件 新闻'},
+  {id:'gas',icon:'💨',title:'燃气安全事故',desc:'燃气泄漏爆炸真实事故',query:'最新 燃气泄漏 爆炸 事故 新闻'},
+  {id:'escape',icon:'🚪',title:'火灾逃生案例',desc:'火灾中逃生自救的真实故事',query:'火灾 逃生自救 成功案例 新闻'},
+  {id:'electrical',icon:'⚡',title:'电气火灾',desc:'电气线路故障引发火灾的真实报道',query:'最新 电气火灾 短路 线路老化 事故新闻'},
+  {id:'commercial',icon:'🏬',title:'商场酒店火灾',desc:'公共场所火灾真实案例',query:'最新 商场 酒店 公共场所 火灾 新闻'},
+  {id:'law',icon:'📋',title:'消防执法案例',desc:'消防违法处罚的真实案例',query:'最新 消防安全 违法 处罚 执法 案例'}
+];
+
+var SYSTEM_PROMPT='你是一名资深消防安全分析师。用户将给你提供从互联网上搜索到的真实消防安全新闻内容。请你基于这些真实信息进行以下分析：\n\n1.【事件概要】简要概括搜索结果中最有代表性的一起真实消防事故/事件，保留真实的时间、地点等信息。\n\n2.【原因分析】基于报道内容和你的专业知识，分析该事故的起火原因、蔓延原因和主要教训。\n\n3.【专业知识】结合此案例科普相关消防安全知识，引用相关法规或标准。\n\n4.【防范建议】给出3-5条实用的防范建议，便于普通人日常实践。\n\n格式要求：\n- 使用清晰的段落标题（如【事件概要】【原因分析】等）\n- 务必保留原始新闻中的真实信息（时间、地点、具体数据等）\n- 语言通俗易懂但专业准确\n- 总字数控制在600-800字\n- 不要使用Markdown格式符号（不要用 # * 等）';
+
+var isWorking=false;
+var activeTopicId=null;
+
+function buildTopics(){
+  var list=document.getElementById('topics-list');
+  TOPICS.forEach(function(t){
+    var card=document.createElement('div');
+    card.className='topic-card';
+    card.dataset.id=t.id;
+    card.innerHTML='<div class="tc-icon">'+t.icon+'</div><div class="tc-title">'+t.title+'</div><div class="tc-desc">'+t.desc+'</div><div class="tc-badge">联网搜索</div>';
+    card.onclick=function(){if(!isWorking)loadTopic(t);};
+    list.appendChild(card);
+  });
+}
+
+function setActiveTopic(id){
+  activeTopicId=id;
+  document.querySelectorAll('.topic-card').forEach(function(c){
+    c.classList.toggle('active',c.dataset.id===id);
+  });
+}
+
+function setWorking(v){
+  isWorking=v;
+  document.getElementById('custom-btn').disabled=v;
+  document.querySelectorAll('.topic-card').forEach(function(c){
+    c.classList.toggle('loading',v&&!c.classList.contains('active'));
+  });
+}
+
+function loadTopic(t){
+  setActiveTopic(t.id);
+  setWorking(true);
+  showStep('正在联网搜索真实新闻…','通过 Jina Search 搜索: '+t.query);
+  searchWeb(t.query,function(results){
+    if(!results||!results.length){
+      showStep('联网摘要较少，AI 将结合主题补充分析…','');
+      analyzeWithAI(t,[],t.query);
+      return;
+    }
+    showStep('已获取 '+results.length+' 条参考信息，AI 正在分析…','');
+    analyzeWithAI(t,results,t.query);
+  });
+}
+
+function customSearch(){
+  var input=document.getElementById('custom-input');
+  var text=input.value.trim();
+  if(!text||isWorking)return;
+  input.value='';
+  var t={id:'custom_'+Date.now(),icon:'🔍',title:text,desc:'自定义搜索',query:text+' 消防 火灾 事故 新闻'};
+  setActiveTopic(t.id);
+  setWorking(true);
+  showStep('正在联网搜索…','关键词: '+t.query);
+  searchWeb(t.query,function(results){
+    if(!results||!results.length){
+      showStep('联网摘要较少，AI 将结合主题补充分析…','');
+      analyzeWithAI(t,[],t.query);
+      return;
+    }
+    showStep('已获取 '+results.length+' 条参考信息，AI 正在分析…','');
+    analyzeWithAI(t,results,t.query);
+  });
+}
+
+function searchWeb(query,callback){
+  var url=JINA_SEARCH_Q+encodeURIComponent(query);
+  function getText(headers){
+    return fetch(url,{method:'GET',headers:headers}).then(function(res){
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      return res.text();
+    });
+  }
+  getText({'Accept':'application/json','X-Retain-Images':'none'})
+    .then(function(raw){
+      var r=parseJinaResponse(raw);
+      if(r.length){callback(r.slice(0,5));return null;}
+      return getText({'Accept':'text/plain','X-Retain-Images':'none'});
+    })
+    .then(function(raw2){
+      if(raw2===null)return;
+      callback(parseJinaResponse(raw2).slice(0,5));
+    })
+    .catch(function(e){
+      console.warn('Jina search failed:',e);
+      callback([]);
+    });
+}
+
+function parseJinaResponse(raw){
+  if(!raw||typeof raw!=='string')return [];
+  var t=raw.trim();
+  if(!t)return [];
+  try{
+    var j=JSON.parse(t);
+    var fromJson=extractJinaJson(j);
+    if(fromJson.length)return fromJson;
+  }catch(e){}
+  return extractJinaMarkdown(t);
+}
+
+function extractJinaJson(json){
+  var out=[];
+  function push(it){
+    if(!it||typeof it!=='object')return;
+    var title=it.title||it.name||it.headline||'';
+    var u=it.url||it.link||it.href||'';
+    var content=it.content||it.description||it.snippet||it.text||'';
+    content=String(content).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,900);
+    if(title||content)out.push({title:title||'(无标题)',url:u,content:content});
+  }
+  if(Array.isArray(json))json.forEach(push);
+  else if(Array.isArray(json.data))json.data.forEach(push);
+  else if(Array.isArray(json.results))json.results.forEach(push);
+  else if(json.data&&typeof json.data==='object'){
+    if(Array.isArray(json.data.items))json.data.items.forEach(push);
+    else if(Array.isArray(json.data.results))json.data.results.forEach(push);
+  }
+  return out;
+}
+
+function extractJinaMarkdown(md){
+  var out=[];
+  var re=/\[([^\]]*)\]\((https?:[^)\s]+)\)/g;
+  var seen={},m;
+  while((m=re.exec(md))!==null){
+    var title=m[1].trim(),u=m[2].trim();
+    if(seen[u])continue;
+    seen[u]=1;
+    var after=md.slice(m.index+m[0].length,m.index+m[0].length+800);
+    var snippet=after.replace(/\[([^\]]*)\]\([^)]+\)/g,'$1').replace(/[#*_`]/g,'').trim().slice(0,500);
+    out.push({title:title||u,url:u,content:snippet});
+    if(out.length>=5)break;
+  }
+  if(out.length)return out;
+  if(md.length>200)return[{title:'联网搜索摘要',url:'',content:md.replace(/[#*_`\[\]()]/g,' ').replace(/\s+/g,' ').trim().slice(0,2500)}];
+  return [];
+}
+
+function buildArticleShell(topic,sources,dateStr){
+  var html='<div class="article">';
+  html+='<div class="article-header">';
+  html+='<div class="article-cat">'+esc(topic.title)+'</div>';
+  html+='<div class="article-title">'+topic.icon+' '+esc(topic.title)+' — 真实案例分析</div>';
+  html+='<div class="article-meta">'+dateStr+' · '+(sources.length?'参考联网检索 · ':'')+'AI 深度分析</div>';
+  html+='</div>';
+
+  if(sources.length){
+    html+='<div class="sources-box">';
+    html+='<div class="sources-title">参考来源（'+sources.length+'条）</div>';
+    sources.forEach(function(s,i){
+      html+='<div class="source-item">';
+      html+='<div class="source-idx">['+(i+1)+']</div>';
+      html+='<div class="source-info">';
+      if(s.url)html+='<a class="source-link" href="'+escAttr(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a>';
+      else html+='<span class="source-link">'+esc(s.title)+'</span>';
+      if(s.content)html+='<div class="source-snippet">'+esc(s.content.substring(0,140))+(s.content.length>140?'…':'')+'</div>';
+      html+='</div></div>';
+    });
+    html+='</div>';
+  }
+
+  html+='<div class="article-body" id="article-body"></div>';
+  html+='<div class="article-footer" id="article-footer">';
+  html+='<button class="af-btn primary" onclick="refreshCurrent()">换一篇分析</button>';
+  html+='<button class="af-btn secondary" onclick="copyArticle()">复制内容</button>';
+  html+='</div>';
+  html+='</div>';
+  return html;
+}
+
+function escAttr(s){
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+function analyzeWithAI(topic,sources,query){
+  var contextParts=[];
+  if(sources.length){
+    contextParts.push('以下是从互联网搜索到的真实新闻内容（共'+sources.length+'条）：\n');
+    sources.forEach(function(s,i){
+      contextParts.push('【来源'+(i+1)+'】'+s.title+'\n链接：'+(s.url||'无')+'\n内容：'+s.content+'\n');
+    });
+    contextParts.push('\n请基于以上真实搜索结果，选择最有代表性的案例进行专业分析。');
+  }else{
+    contextParts.push('联网检索未返回结构化条目。请根据你的知识，分析一起与「'+query+'」相关的真实消防安全案例，尽量引用可查的公开报道要素（时间、地点、伤亡与原因）。');
+  }
+
+  var panel=document.getElementById('content-panel');
+  var now=new Date();
+  var dateStr=now.getFullYear()+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+String(now.getDate()).padStart(2,'0');
+  var aiText='';
+
+  panel.innerHTML=buildArticleShell(topic,sources,dateStr);
+  var bodyEl=document.getElementById('article-body');
+  var footerEl=document.getElementById('article-footer');
+  var rafId=null;
+
+  function paintBodyStreaming(){
+    rafId=null;
+    if(!bodyEl)return;
+    bodyEl.textContent='';
+    bodyEl.appendChild(document.createTextNode(aiText));
+    var ind=document.createElement('span');
+    ind.className='typing-indicator';
+    bodyEl.appendChild(ind);
+  }
+
+  function schedulePaint(){
+    if(rafId==null)rafId=requestAnimationFrame(paintBodyStreaming);
+  }
+
+  function finishStream(){
+    if(rafId!=null){cancelAnimationFrame(rafId);rafId=null;}
+    if(!bodyEl)return;
+    bodyEl.textContent=aiText;
+    if(footerEl)footerEl.classList.add('show');
+    panel.scrollTop=Math.min(panel.scrollHeight,panel.scrollTop+80);
+  }
+
+  var profile=FireTextAI.getActiveProfile();
+  var messages=[
+    {role:'system',content:SYSTEM_PROMPT},
+    {role:'user',content:contextParts.join('\n')}
+  ];
+  FireTextAI.streamChat(profile,messages,{
+    onToken:function(t){aiText+=t;schedulePaint();},
+    onDone:function(){
+      finishStream();
+      setWorking(false);
+    },
+    onError:function(e){
+      var msg=e&&e.message?e.message:String(e);
+      var hint=msg.indexOf('401')!==-1||msg.indexOf('Unauthorized')!==-1
+        ? '（HTTP 401：密钥错误、已过期或未在「API 设置」中填写。请打开 api.html 保存有效 API Key。）'
+        : '（请检查网络与 API 设置中的 Base URL、模型名。）';
+      if(bodyEl)bodyEl.textContent='请求失败: '+msg+' '+hint;
+      if(footerEl)footerEl.classList.add('show');
+      setWorking(false);
+    }
+  });
+}
+
+function showStep(text,sub){
+  var panel=document.getElementById('content-panel');
+  panel.innerHTML='<div class="content-loading"><div class="cl-ring"></div><div class="cl-text">'+esc(text)+'</div>'+(sub?'<div class="cl-step">'+esc(sub)+'</div>':'')+'</div>';
+}
+
+window.refreshCurrent=function(){
+  if(isWorking)return;
+  var topic=null;
+  for(var i=0;i<TOPICS.length;i++){
+    if(TOPICS[i].id===activeTopicId){topic=TOPICS[i];break;}
+  }
+  if(topic)loadTopic(topic);
+};
+
+window.copyArticle=function(){
+  var body=document.getElementById('article-body');
+  if(!body)return;
+  var text=body.textContent;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){alert('已复制到剪贴板');});
+  }else{
+    var ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    alert('已复制到剪贴板');
+  }
+};
+
+function esc(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+buildTopics();
+})();
+</script>
+</body>
+</html>
